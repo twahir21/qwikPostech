@@ -19,8 +19,8 @@ export default component$(() => {
   });
 
   return (
-    <div class="flex h-screen">
-      {/* Sidebar */}
+    <div class="flex">
+      {/* Sidebar & Overlay */}
       <aside
         class={`bg-gray-800 text-white fixed inset-y-0 left-0 transform transition-all duration-300 md:relative md:translate-x-0 w-64 p-4 z-50 ${
           store.isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -30,17 +30,17 @@ export default component$(() => {
           ✖
         </button>
         <span class="inline-flex items-center pl-1">
-          <img 
-            src={logo} 
-            alt="Profile" 
-            class="w-10 h-10 rounded-full border-2 border-blue-600 ml-2" 
-            width="70" 
-            height="70" 
-          />
-          <p class="pl-2">PosTech</p>
+        <img 
+          src={logo} 
+          alt="Profile" 
+          class="w-10 h-10 rounded-full border-2 border-blue-600 ml-2" 
+          width="70" 
+          height="70" 
+        />
+        <p class="pl-2">PosTech</p>
         </span>
 
-        <nav class="mt-5">
+                <nav class="mt-5">
           {[
             { name: "home", emoji: "🏠" },
             { name: "sales", emoji: "💰" },
@@ -63,6 +63,7 @@ export default component$(() => {
             </button>
           ))}
         </nav>
+
       </aside>
 
       {/* Mobile Overlay */}
@@ -72,19 +73,21 @@ export default component$(() => {
 
       {/* Main Content */}
       <div class="flex-1 flex flex-col">
-        {/* Fixed Top Navbar */}
-        <header class="bg-white shadow-md p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-40">
+        {/* Top Navbar */}
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
           <button class="md:hidden" onClick$={toggleSidebar}>☰</button>
           <h1 class="text-xl font-bold">Welcome, Twahir</h1>
           <div class="flex gap-5">
-            <select 
-              class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
-            >
-              <option value="en">🇬🇧 English</option>
-              <option value="ar">🇸🇦 العربية</option>
-              <option value="sw">🇹🇿 Swahili</option>
-              <option value="fr">🇫🇷 Français</option>
-            </select>
+
+        <select 
+          class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
+        >
+          <option value="en">🇬🇧 English</option>
+          <option value="ar">🇸🇦 العربية</option>
+          <option value="sw">🇹🇿 Swahili</option>
+          <option value="fr">🇫🇷 Français</option>
+        </select>
+
             <button title="calculator">📱</button>
             <button title="Add Product">➕</button>
             <button title="Notification"> 🔔 </button>
@@ -92,8 +95,8 @@ export default component$(() => {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main class="p-6 pt-[60px]">
+        {/* Dynamic Page Content */}
+        <main class="p-6">
           {store.currentPage === "home" && <HomeComponent />}
           {store.currentPage === "sales" && <p>💰 Sales Page</p>}
           {store.currentPage === "analytics" && <p>📊 Analytics Page</p>}
@@ -104,7 +107,8 @@ export default component$(() => {
           {store.currentPage === "products" && <p>📦 Products Inventory</p>}
           {store.currentPage === "customers" && <p>👥 Customers List</p>}
           {store.currentPage === "suppliers" && <p>🔗 Suppliers Directory</p>}
-          {store.currentPage === "settings" && <p>⚙️ Settings Page</p>}
+          {store.currentPage === "settings" && <p> Settings page</p>}
+
         </main>
       </div>
     </div>
