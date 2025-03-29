@@ -19,7 +19,7 @@ export default component$(() => {
   });
 
   return (
-    <div class="flex">
+    <div class="flex min-h-screen">
       {/* Sidebar & Overlay */}
       <aside
         class={`bg-gray-800 text-white fixed inset-y-0 left-0 transform transition-all duration-300 md:relative md:translate-x-0 w-64 p-4 z-50 ${
