@@ -1,98 +1,77 @@
-import type { DocumentHead } from "@builder.io/qwik-city";
 import { component$, useStore, $ } from "@builder.io/qwik";
+import type { DocumentHead } from "@builder.io/qwik-city";
 
 export default component$(() => {
   const store = useStore({
     isSidebarOpen: false,
+    currentPage: "home",
   });
 
   const toggleSidebar = $(() => {
     store.isSidebarOpen = !store.isSidebarOpen;
   });
 
+  const navigate = $((page: string) => {
+    store.currentPage = page;
+    if (window.innerWidth < 768) store.isSidebarOpen = false; // Close on mobile
+  });
+
   return (
-    <div class="flex h-screen">
-      {/* Sidebar */}
-      <div
-        class={`bg-gray-800 text-white w-16 md:w-64 transition-all duration-300 ${
-          store.isSidebarOpen ? 'w-64' : 'w-16'
+    <div class="flex h-screen overflow-hidden">
+      {/* Sidebar & Overlay */}
+      <aside
+        class={`bg-gray-800 text-white fixed inset-y-0 left-0 transform transition-all duration-300 md:relative md:translate-x-0 w-64 p-4 z-50 ${
+          store.isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div class="flex justify-between items-center px-4 py-2">
-          <span class="text-xl font-bold">POS</span>
-          <button class="md:hidden" onClick$={toggleSidebar}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              class="w-6 h-6"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
-        </div>
+        <button class="md:hidden absolute top-4 right-4 text-white" onClick$={toggleSidebar}>
+          ✖
+        </button>
         <nav class="mt-10">
-          <ul>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>🏠</span> Home</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>💰</span> Sales</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>📊</span> Analytics</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>🧾</span> Receipts</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>💳</span> Debt</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>💸</span> Expenses</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>📉</span> Graph</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>📦</span> Products</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>👥</span> Customers</a></li>
-            <li><a href="#" class="block py-2 px-4 hover:bg-gray-700"><span>🔗</span> Suppliers</a></li>
-          </ul>
+          {["home", "sales", "analytics", "receipts", "debt", "expenses", "graph", "products", "customers", "suppliers"].map((page) => (
+            <button
+              key={page}
+              class="block w-full text-left py-2 px-4 hover:bg-gray-700"
+              onClick$={() => navigate(page)}
+            >
+              {page.charAt(0).toUpperCase() + page.slice(1)}
+            </button>
+          ))}
         </nav>
-      </div>
+      </aside>
+
+      {/* Mobile Overlay */}
+      {store.isSidebarOpen && (
+        <div class="fixed inset-0 bg-opacity-50 md:hidden" onClick$={toggleSidebar}></div>
+      )}
 
       {/* Main Content */}
-      <div class="flex-1 p-6">
-        {/* Cards */}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Scan QR Code Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">📱 Scan QR Code</h3>
-            <button class="bg-blue-500 text-white p-2 rounded mt-4 w-full">Scan Now</button>
+      <div class="flex-1 flex flex-col">
+        {/* Top Navbar */}
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+          <button class="md:hidden" onClick$={toggleSidebar}>☰</button>
+          <h1 class="text-xl font-bold">POS Dashboard</h1>
+          <div class="flex gap-4">
+            <button>🔔</button>
+            <button>👤</button>
+            <button>🚪</button>
           </div>
+        </header>
 
-          {/* Total Profit Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">💵 Total Profit</h3>
-            <p class="text-xl mt-2">$10,000</p>
-          </div>
-
-          {/* Low Stock Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">⚠️ Low Stock</h3>
-            <p class="mt-2">10 items remaining</p>
-          </div>
-
-          {/* Expired Products Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">❌ Expired Products</h3>
-            <p class="mt-2">3 products expired today</p>
-          </div>
-
-          {/* Sales Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">💸 Sales</h3>
-            <p class="mt-2">Total Sales: $5,000</p>
-          </div>
-
-          {/* Expenses Card */}
-          <div class="bg-white shadow-lg rounded-lg p-4">
-            <h3 class="text-lg font-semibold">💳 Expenses</h3>
-            <p class="mt-2">Total Expenses: $1,200</p>
-          </div>
-        </div>
+        {/* Dynamic Page Content */}
+        <main class="p-6">
+          <h2 class="text-2xl font-semibold mb-4">{store.currentPage}</h2>
+          {store.currentPage === "home" && <p>🏠 Welcome to the Home Page</p>}
+          {store.currentPage === "sales" && <p>💰 Sales Page</p>}
+          {store.currentPage === "analytics" && <p>📊 Analytics Page</p>}
+          {store.currentPage === "receipts" && <p>🧾 Receipts Page</p>}
+          {store.currentPage === "debt" && <p>💳 Debt Management</p>}
+          {store.currentPage === "expenses" && <p>💸 Expenses Overview</p>}
+          {store.currentPage === "graph" && <p>📉 Graph Reports</p>}
+          {store.currentPage === "products" && <p>📦 Products Inventory</p>}
+          {store.currentPage === "customers" && <p>👥 Customers List</p>}
+          {store.currentPage === "suppliers" && <p>🔗 Suppliers Directory</p>}
+        </main>
       </div>
     </div>
   );
@@ -101,9 +80,6 @@ export default component$(() => {
 export const head: DocumentHead = {
   title: "POS Dashboard",
   meta: [
-    {
-      name: "description",
-      content: "A Point of Sale (POS) Dashboard built with Qwik",
-    },
+    { name: "description", content: "A Point of Sale (POS) Dashboard built with Qwik" },
   ],
 };
