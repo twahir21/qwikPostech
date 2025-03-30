@@ -1,22 +1,32 @@
-import { $, component$ } from "@builder.io/qwik";
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 
-export const LanguageSwitcher = component$((props: { store: any }) => {
-  const switchLanguage = $((lang: string) => {
-    props.store.language = lang;  // Use the store from props
+export const Translate = component$((props: { lang: string; keys: string[] }) => {
+  const translations = useSignal<Record<string, string>>({});
+
+  // Use useTask$ to reactively update translations when `lang` or `keys` change
+  useTask$(async ({ track }) => {
+    track(() => props.lang); // Track language changes
+    track(() => props.keys); // Track key changes
+
+    try {
+      const newTranslations: Record<string, string> = {};
+      for (const key of props.keys) {
+        const res = await fetch(`http://localhost:5173/api/translate?lang=${props.lang}&key=${key}`);
+        const data = await res.json();
+        newTranslations[key] = data.message || key; // Fallback to key if translation not found
+      }
+      translations.value = newTranslations; // Update state with new translations
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      translations.value = {}; // Reset or handle error case
+    }
   });
 
   return (
-    <select 
-    class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
-      onChange$={(e) => switchLanguage((e.target as HTMLSelectElement).value)} 
-      value={props.store.language}
-    >
-        <option value="en">🇬🇧 English</option>
-        <option value="ar">🇸🇦 العربية</option>
-        <option value="sw">🇹🇿 Swahili</option>
-        <option value="fr">🇫🇷 Français</option>
-    </select>
-
-    
+    <div>
+      {props.keys.map((key) => (
+        <p key={key}>{translations.value[key] || "Loading..."}</p>
+      ))}
+    </div>
   );
 });

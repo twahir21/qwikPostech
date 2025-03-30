@@ -7,6 +7,7 @@ export default component$(() => {
   const store = useStore({
     isSidebarOpen: false,
     currentPage: "home",
+    selectedLanguage: "en", // Default language
   });
 
   const toggleSidebar = $(() => {
@@ -79,14 +80,15 @@ export default component$(() => {
           <h1 class="text-xl font-bold">Welcome, Twahir</h1>
           <div class="flex gap-5">
 
-        <select 
-          class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
-        >
-          <option value="en">🇬🇧 English</option>
-          <option value="ar">🇸🇦 العربية</option>
-          <option value="sw">🇹🇿 Swahili</option>
-          <option value="fr">🇫🇷 Français</option>
-        </select>
+          <select
+            class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
+            onChange$={(event) => (store.selectedLanguage = (event.target as HTMLSelectElement).value)}
+          >
+            <option value="en">🇬🇧 English</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="sw">🇹🇿 Swahili</option>
+            <option value="fr">🇫🇷 Français</option>
+          </select>
 
             <button title="calculator">📱</button>
             <button title="Add Product">➕</button>
@@ -97,7 +99,7 @@ export default component$(() => {
 
         {/* Dynamic Page Content */}
         <main class="p-6">
-          {store.currentPage === "home" && <HomeComponent />}
+          {store.currentPage === "home" && <HomeComponent lang = {store.selectedLanguage}/>}
           {store.currentPage === "sales" && <p>💰 Sales Page</p>}
           {store.currentPage === "analytics" && <p>📊 Analytics Page</p>}
           {store.currentPage === "receipts" && <p>🧾 Receipts Page</p>}
