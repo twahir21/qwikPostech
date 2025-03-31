@@ -68,10 +68,26 @@ export default component$(() => {
     isSidebarOpen: false,
     currentPage: "home",
     selectedLanguage: "en", // Default language
+    input: "",
+    showCalculator: false,
   });
 
   const toggleSidebar = $(() => {
     store.isSidebarOpen = !store.isSidebarOpen;
+  });
+
+  const handleButtonClick = $((value: string) => {
+    if (value === "C") {
+      store.input = "";
+    } else if (value === "=") {
+      try {
+        store.input = eval(store.input).toString();
+      } catch {
+        store.input = "Error";
+      }
+    } else {
+      store.input += value;
+    }
   });
 
   const navigate = $((page: string) => {
@@ -152,8 +168,50 @@ export default component$(() => {
               <option value="fr">🇫🇷 Français</option>
             </select>
 
-            <button title="calculator">📱</button>
-            <button title="Add Product">➕</button>
+            <div class="relative">
+              <button
+                class="p-2 text-white rounded"
+                onClick$={() => (store.showCalculator = true)}
+              >
+                📱
+              </button>
+
+              {store.showCalculator && (
+                <div class="fixed inset-0 flex justify-end items-center bg-opacity-50">
+                  <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative border-2 border-b-blue-900">
+                    <button
+                      class="absolute top-2 right-2 text-gray-600 hover:text-red-600 pb-2"
+                      onClick$={() => (store.showCalculator = false)}
+                    >
+                      ✖
+                    </button>
+                    <input
+                      type="text"
+                      class="w-full p-2 text-right text-xl border rounded mb-4 mr-4 mt-4"
+                      value={store.input}
+                      disabled
+                    />
+                    <div class="grid grid-cols-4 gap-2">
+                      {["7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", "C", "=", "+"].map(
+                        (btn) => (
+                          <button
+                            key={btn}
+                            class={`p-4 rounded text-xl ${
+                              btn === "C" ? "bg-red-500 text-white" :
+                              btn === "=" ? "bg-gray-900 text-white" :
+                              "bg-gray-200"
+                            }`}
+                            onClick$={() => handleButtonClick(btn)}
+                          >
+                            {btn}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <button title="Notification"> 🔔 </button>
             <button title="profile"> 👤 </button>
           </div>
