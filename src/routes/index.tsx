@@ -3,6 +3,66 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
 
+// Example translations (you can fetch these from an API or external file)
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    welcome: "Welcome, Twahir",
+    home: "Home",
+    sales: "Sales",
+    analytics: "Analytics",
+    receipts: "Receipts",
+    debt: "Debt Management",
+    expenses: "Expenses Overview",
+    graph: "Graph Reports",
+    products: "Products Inventory",
+    customers: "Customers List",
+    suppliers: "Suppliers Directory",
+    settings: "Settings",
+  },
+  ar: {
+    welcome: "أهلاً، توهار",
+    home: "الصفحة الرئيسية",
+    sales: "المبيعات",
+    analytics: "التحليلات",
+    receipts: "الإيصالات",
+    debt: "إدارة الديون",
+    expenses: "نظرة عامة على المصاريف",
+    graph: "تقارير الرسوم البيانية",
+    products: "مخزون المنتجات",
+    customers: "قائمة العملاء",
+    suppliers: "دليل الموردين",
+    settings: "الإعدادات",
+  },
+  sw: {
+    welcome: "Karibu, Twahir",
+    home: "Nyumbani",
+    sales: "Mauzo",
+    analytics: "Takwimu",
+    receipts: "Risiti",
+    debt: "Usimamizi wa Madeni",
+    expenses: "Muhtasari wa Gharama",
+    graph: "Ripoti za Picha",
+    products: "Hisa za Bidhaa",
+    customers: "Orodha ya Wateja",
+    suppliers: "Orodha ya Wauzaji",
+    settings: "Mipangilio",
+  },
+  fr: {
+    welcome: "Bienvenue, Twahir",
+    home: "Accueil",
+    sales: "Ventes",
+    analytics: "Analytique",
+    receipts: "Reçus",
+    debt: "Gestion de la Dette",
+    expenses: "Aperçu des Dépenses",
+    graph: "Graphiques",
+    products: "Inventaire des Produits",
+    customers: "Liste des Clients",
+    suppliers: "Répertoire des Fournisseurs",
+    settings: "Paramètres",
+  },
+};
+
 export default component$(() => {
   const store = useStore({
     isSidebarOpen: false,
@@ -19,6 +79,10 @@ export default component$(() => {
     if (window.innerWidth < 768) store.isSidebarOpen = false; // Close on mobile
   });
 
+  const translate = (key: string) => {
+    return translations[store.selectedLanguage][key] || key;
+  };
+
   return (
     <div class="flex min-h-screen">
       {/* Sidebar & Overlay */}
@@ -31,17 +95,17 @@ export default component$(() => {
           ✖
         </button>
         <span class="inline-flex items-center pl-1">
-        <img 
-          src={logo} 
-          alt="Profile" 
-          class="w-10 h-10 rounded-full border-2 border-blue-600 ml-2" 
-          width="70" 
-          height="70" 
-        />
-        <p class="pl-2">PosTech</p>
+          <img 
+            src={logo} 
+            alt="Profile" 
+            class="w-10 h-10 rounded-full border-2 border-blue-600 ml-2" 
+            width="70" 
+            height="70" 
+          />
+          <p class="pl-2">PosTech</p>
         </span>
 
-                <nav class="mt-5">
+        <nav class="mt-5">
           {[
             { name: "home", emoji: "🏠" },
             { name: "sales", emoji: "💰" },
@@ -53,18 +117,17 @@ export default component$(() => {
             { name: "products", emoji: "📦" },
             { name: "customers", emoji: "👥" },
             { name: "suppliers", emoji: "🔗" },
-            { name: "settings", emoji: "⚙️" }
+            { name: "settings", emoji: "⚙️" },
           ].map(({ name, emoji }) => (
             <button
               key={name}
               class="block w-full text-left py-2 px-4 hover:bg-gray-700"
               onClick$={() => navigate(name)}
             >
-              <span class="mr-2">{emoji}</span>{name.charAt(0).toUpperCase() + name.slice(1)}
+              <span class="mr-2">{emoji}</span>{translate(name)}
             </button>
           ))}
         </nav>
-
       </aside>
 
       {/* Mobile Overlay */}
@@ -77,18 +140,17 @@ export default component$(() => {
         {/* Top Navbar */}
         <header class="bg-white shadow-md p-4 flex justify-between items-center">
           <button class="md:hidden" onClick$={toggleSidebar}>☰</button>
-          <h1 class="text-xl font-bold">Welcome, Twahir</h1>
+          <h1 class="text-xl font-bold">{translate("welcome")}</h1>
           <div class="flex gap-5">
-
-          <select
-            class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
-            onChange$={(event) => (store.selectedLanguage = (event.target as HTMLSelectElement).value)}
-          >
-            <option value="en">🇬🇧 English</option>
-            <option value="ar">🇸🇦 العربية</option>
-            <option value="sw">🇹🇿 Swahili</option>
-            <option value="fr">🇫🇷 Français</option>
-          </select>
+            <select
+              class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
+              onChange$={(event) => (store.selectedLanguage = (event.target as HTMLSelectElement).value)}
+            >
+              <option value="en">🇬🇧 English</option>
+              <option value="ar">🇸🇦 العربية</option>
+              <option value="sw">🇹🇿 Swahili</option>
+              <option value="fr">🇫🇷 Français</option>
+            </select>
 
             <button title="calculator">📱</button>
             <button title="Add Product">➕</button>
@@ -99,18 +161,17 @@ export default component$(() => {
 
         {/* Dynamic Page Content */}
         <main class="p-6">
-          {store.currentPage === "home" && <HomeComponent lang = {store.selectedLanguage}/>}
-          {store.currentPage === "sales" && <p>💰 Sales Page</p>}
-          {store.currentPage === "analytics" && <p>📊 Analytics Page</p>}
-          {store.currentPage === "receipts" && <p>🧾 Receipts Page</p>}
-          {store.currentPage === "debt" && <p>💳 Debt Management</p>}
-          {store.currentPage === "expenses" && <p>💸 Expenses Overview</p>}
-          {store.currentPage === "graph" && <p>📉 Graph Reports</p>}
-          {store.currentPage === "products" && <p>📦 Products Inventory</p>}
-          {store.currentPage === "customers" && <p>👥 Customers List</p>}
-          {store.currentPage === "suppliers" && <p>🔗 Suppliers Directory</p>}
-          {store.currentPage === "settings" && <p> Settings page</p>}
-
+          {store.currentPage === "home" && <HomeComponent lang={store.selectedLanguage} />}
+          {store.currentPage === "sales" && <p>💰 {translate("sales")} Page</p>}
+          {store.currentPage === "analytics" && <p>📊 {translate("analytics")} Page</p>}
+          {store.currentPage === "receipts" && <p>🧾 {translate("receipts")} Page</p>}
+          {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
+          {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
+          {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
+          {store.currentPage === "products" && <p>📦 {translate("products")} Inventory</p>}
+          {store.currentPage === "customers" && <p>👥 {translate("customers")} List</p>}
+          {store.currentPage === "suppliers" && <p>🔗 {translate("suppliers")} Directory</p>}
+          {store.currentPage === "settings" && <p>{translate("settings")} page</p>}
         </main>
       </div>
     </div>

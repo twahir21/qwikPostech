@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
+import { Translate } from "./Language";
 
-export const RecentProductsTable = component$(() => {
+export const RecentProductsTable = component$((props: {lang: string}) => {
   const products = [
     { id: 1, name: "Laptop", price: "$1200", stock: 5 },
     { id: 2, name: "Smartphone", price: "$800", stock: 12 },
@@ -12,14 +13,17 @@ export const RecentProductsTable = component$(() => {
 
   return (
     <div class="overflow-x-auto">
-        <h2>Recent Added Products</h2>
+        <h1 class="font-semibold text-1xl">  
+
+          <Translate lang={props.lang} keys={['recently_added_products']}/>
+        </h1>
       <table class="min-w-full border border-gray-300 shadow-md">
         <thead>
           <tr class="bg-gray-700 text-white">
             <th class="border border-black px-4 py-2">#</th>
-            <th class="border border-black px-4 py-2">Product</th>
-            <th class="border border-black px-4 py-2">Price</th>
-            <th class="border border-black px-4 py-2">Stock</th>
+            <th class="border border-black px-4 py-2"><Translate lang={props.lang} keys={['product']}/></th>
+            <th class="border border-black px-4 py-2"><Translate lang={props.lang} keys={['price']} /></th>
+            <th class="border border-black px-4 py-2"><Translate lang={props.lang} keys={['stock']} /></th>
           </tr>
         </thead>
         <tbody>
