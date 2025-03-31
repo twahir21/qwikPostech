@@ -21,6 +21,7 @@ const translations: Record<string, Translation> = {
     product: "Product",
     price: "Price",
     stock: "Stock",
+    graph_title: "Sales Chart in a week", // English translation
   },
   fr: {
     total_profit: "Profit total",
@@ -40,6 +41,7 @@ const translations: Record<string, Translation> = {
     price: "Prix",
     stock: "Stock",
     recently_added_products: "Produits Ajoutés Récemment", // French translation
+    graph_title: "Graphique des ventes en une semaine", // French translatio
   },
   sw: {
     total_profit: "Faida jumla",
@@ -59,6 +61,7 @@ const translations: Record<string, Translation> = {
     price: "Bei",
     stock: "Hisa",
     recently_added_products: "Bidhaa Zilizoongezwa Hivi Karibuni", // Swahili translation
+    graph_title: "Chati ya Mauzo kwa wiki", // Swahili translation
 
   },
   ar: {
@@ -79,6 +82,7 @@ const translations: Record<string, Translation> = {
     product: "منتج",
     price: "السعر",
     stock: "المخزون",
+    graph_title: "رسم بياني للمبيعات في أسبوع"
   },
 };
 

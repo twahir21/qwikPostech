@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { Translate } from "./Language";  // Make sure this is the correct path
 import { RecentProductsTable } from "./Recent";
+import { Graph } from "./Graph";
 
 export const HomeComponent = component$((props: { lang: string }) => {
   return (
@@ -123,7 +124,7 @@ export const HomeComponent = component$((props: { lang: string }) => {
           <p class="text-1xl font-semibold">Expires in 20 days</p>
         </div>
       </div>
-
+      <Graph lang={props.lang} />
       <RecentProductsTable lang={props.lang}/>
     </>
   );
