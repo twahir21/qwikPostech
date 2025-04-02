@@ -1,5 +1,6 @@
-import { $, component$, useStore, useResource$ } from "@builder.io/qwik";
+import { $, component$, useStore, useResource$, useTask$ } from "@builder.io/qwik";
 import { SupplierComponent } from "./Supplier";
+import { fetchWithLang } from "~/routes/function/fetchLang";
 
 interface Supplier {
   id: string;
@@ -24,6 +25,10 @@ interface Store {
   supplierId: string;
   product: Product;
   purchases: Purchase;
+  categories: string[]; // To store categories
+  suppliers: Supplier[]; // To store suppliers
+  message: string; // To show success/error messages
+  isSuccess: boolean; // To track success or failure
 }
 
 export const ProductComponent = component$(() => {
@@ -32,12 +37,16 @@ export const ProductComponent = component$(() => {
     supplierId: "",
     product: { name: "", priceSold: "", stock: "", minStock: "", unit: "" },
     purchases: { priceBought: "", date: "" },
+    categories: [],
+    suppliers: [],
+    message: "",
+    isSuccess: false,
   });
 
   // Fetch categories from backend with error handling
   const categoriesResource = useResource$<string[]>(async () => {
     try {
-      const res = await fetch("http://localhost:3000/categories", {
+      const res = await fetchWithLang("http://localhost:3000/categories", {
         method: "GET",
         credentials: "include", // Send cookies
       });
@@ -48,23 +57,31 @@ export const ProductComponent = component$(() => {
 
       const data = await res.json();
 
-      console.log("Categories fetched:", data); 
-
       if (!data || data.length === 0) {
         console.warn("No categories found.");
         return []; // Return an empty array instead of failing
       }
+      const generalNames = data.data.map((item: any) => item.generalName);
+      store.categories = generalNames; // Array of general names
+      store.message = data.message || "Categories fetched successfully";
+      store.isSuccess = true;
 
-      return data;
+
+      return data.data;
     } catch (error) {
+      store.categories = [];
+      store.message = "Tatizo limejitokeza"; // Error message
+      store.isSuccess = false;
       return []; // Return empty array to avoid breaking UI
     }
   });
 
+  console.log(store.categories)
+
   // Fetch suppliers from backend with error handling
   const suppliersResource = useResource$<Supplier[]>(async () => {
     try {
-      const res = await fetch("http://localhost:3000/suppliers", {
+      const res = await fetchWithLang("http://localhost:3000/suppliers", {
         method: "GET",
         credentials: "include", // Send cookies
       });
@@ -112,6 +129,7 @@ export const ProductComponent = component$(() => {
     console.log("Form Data Submitted:", formData);
   });
 
+  
   return (
     <>
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">Step 1:</h1>
@@ -124,13 +142,17 @@ export const ProductComponent = component$(() => {
           {/* Category Dropdown */}
           <select class="border p-2 rounded" onChange$={(e) => handleInputChange("category", (e.target as HTMLSelectElement).value)}>
             <option value="">Select Category</option>
-            {categoriesResource.value && categoriesResource.value.length > 0 ? (
-              categoriesResource.value.map((category) => (
-                <option key={category} value={category}>{category}</option>
-              ))
-            ) : (
-              <option disabled>No Categories Found</option>
-            )}
+            {
+              store.categories.length > 0 ? (
+                store.categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No Categories Found</option>
+              )
+            }
           </select>
 
           {/* Supplier Dropdown */}
