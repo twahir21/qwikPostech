@@ -1,17 +1,23 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
+import { fetchWithLang } from "~/routes/function/fetchLang";
 
 export const SupplierComponent = component$(() => {
   const formState = useStore({
     name: "",
     contact: "",
     category: "",
+    modal: {
+      isOpen: false,
+      message: '' as string,
+      isSuccess: false,
+    }
   });
 
   const handleSubmit = $(async (event: Event) => {
     event.preventDefault();
   
     try {
-      const categoryResponse = await fetch("http://localhost:3000/categories", {
+      const categoryResponse = await fetchWithLang("http://localhost:3000/categories", {
         method: "POST",
         credentials: "include",  // Include cookies for authentication
         headers: {
@@ -20,13 +26,14 @@ export const SupplierComponent = component$(() => {
         body: JSON.stringify({ generalName: formState.category }),
       });
   
-      if (!categoryResponse.ok) {
-        const errorText = await categoryResponse.text();  // Get error response as text
-        console.error("Error adding category:", errorText);  // Log the error message
-        throw new Error(errorText);  // Throw the error to be caught below
+      const categoryData = await categoryResponse.json();
+      if (!categoryResponse.ok || !categoryData.success) {
+        formState.modal = { isOpen: true, message: categoryData.message || 'Tatizo limejitokeza', isSuccess: false };
+      }else{
+        formState.modal = { isOpen: true, message: categoryData.message || 'Umefanikiwa', isSuccess: true };
       }
   
-      const supplierResponse = await fetch("http://localhost:3000/suppliers", {
+      const supplierResponse = await fetchWithLang("http://localhost:3000/suppliers", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -35,17 +42,23 @@ export const SupplierComponent = component$(() => {
         body: JSON.stringify({ company: formState.name, contact: formState.contact }),
       });
   
-      if (!supplierResponse.ok) {
-        const errorText = await supplierResponse.text();  // Log error details
-        console.error("Error adding supplier:", errorText);
-        throw new Error(errorText);
+      const supplierData = await supplierResponse.json();
+
+      if (!supplierResponse.ok || !supplierData.success) {
+        formState.modal = { isOpen: true, message: supplierData.message || 'Tatizo limejitokeza', isSuccess: false };
+      }else{
+        formState.modal = { isOpen: true, message: supplierData.message || 'Umefanikiwa', isSuccess: true };
       }
-  
-      console.log("Category and Supplier added successfully");
+      // reset the form
+      formState.name = "";
+      formState.contact = "";
+      formState.category = "";
+
     } catch (error) {
       console.error("Form submission failed:", error);
+      formState.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
     }
-  });
+  }); 
   
 
   return (
@@ -93,6 +106,19 @@ export const SupplierComponent = component$(() => {
           Submit
         </button>
       </form>
+
+        {/* Modal Popup */}
+        {formState.modal.isOpen && (
+          <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">
+            <div class="bg-white p-6 rounded shadow-lg text-center">
+              <p class={formState.modal.isSuccess ? 'text-green-600' : 'text-red-600'}>{formState.modal.message}</p>
+              <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded" onClick$={() => (formState.modal.isOpen = false)}>
+                Ok
+              </button>
+            </div>
+          </div>
+        )}
+
     </div>
   );
 });

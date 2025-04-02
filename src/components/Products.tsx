@@ -48,6 +48,8 @@ export const ProductComponent = component$(() => {
 
       const data = await res.json();
 
+      console.log("Categories fetched:", data); 
+
       if (!data || data.length === 0) {
         console.warn("No categories found.");
         return []; // Return an empty array instead of failing
