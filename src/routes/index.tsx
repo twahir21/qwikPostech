@@ -2,6 +2,7 @@ import { component$, useStore, $, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
+import { ProductComponent } from "~/components/Products";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -98,6 +99,9 @@ export default component$(() => {
     if (window.innerWidth < 768) store.isSidebarOpen = false; // Close on mobile
   });
 
+
+
+
   const translate = (key: string) => {
     const translation = translations[store.selectedLanguage][key] || key;
     // Replace {username} placeholder with actual username
@@ -115,7 +119,15 @@ export default component$(() => {
     // Update username from localStorage when the component becomes visible
   useVisibleTask$(() => {
     const username = localStorage.getItem("username") || "Guest";
-    store.username = username;
+      // Utility function to capitalize the first letter of each word
+    const capitalizeWords = (username: string) => {
+      return username
+        .trim() // Remove leading/trailing spaces
+        .split(' ') // Split by space to handle multi-word names
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter of each word
+        .join(' '); // Rejoin words with a space
+    };
+    store.username = capitalizeWords(username);
   });  
   
   // Logout function
@@ -273,7 +285,7 @@ export default component$(() => {
           {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
           {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
-          {store.currentPage === "products" && <p>📦 {translate("products")} Inventory</p>}
+          {store.currentPage === "products" && <ProductComponent />}
           {store.currentPage === "customers" && <p>👥 {translate("customers")} List</p>}
           {store.currentPage === "suppliers" && <p>🔗 {translate("suppliers")} Directory</p>}
           {store.currentPage === "settings" && <p>{translate("settings")} page</p>}

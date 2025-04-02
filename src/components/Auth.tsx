@@ -76,7 +76,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
           password: state.password,
         };
 
-        const response = await fetchWithLang(endpoint, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
