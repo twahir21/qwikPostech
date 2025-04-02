@@ -1,12 +1,12 @@
-import { component$, useStore, $ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { component$, useStore, $, useVisibleTask$ } from "@builder.io/qwik";
+import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
   en: {
-    welcome: "Welcome, Twahir",
+    welcome: "Welcome, {username}",
     home: "Home",
     sales: "Sales",
     analytics: "Analytics",
@@ -20,7 +20,7 @@ const translations: Record<string, Record<string, string>> = {
     settings: "Settings",
   },
   ar: {
-    welcome: "أهلاً، توهار",
+    welcome: "أهلاً، {username}",
     home: "الصفحة الرئيسية",
     sales: "المبيعات",
     analytics: "التحليلات",
@@ -34,7 +34,7 @@ const translations: Record<string, Record<string, string>> = {
     settings: "الإعدادات",
   },
   sw: {
-    welcome: "Karibu, Twahir",
+    welcome: "Karibu, {username}",
     home: "Nyumbani",
     sales: "Mauzo",
     analytics: "Takwimu",
@@ -48,7 +48,7 @@ const translations: Record<string, Record<string, string>> = {
     settings: "Mipangilio",
   },
   fr: {
-    welcome: "Bienvenue, Twahir",
+    welcome: "Bienvenue, {username}",
     home: "Accueil",
     sales: "Ventes",
     analytics: "Analytique",
@@ -70,6 +70,7 @@ export default component$(() => {
     selectedLanguage: "en", // Default language
     input: "",
     showCalculator: false,
+    username: "", // Default username
   });
 
   const toggleSidebar = $(() => {
@@ -90,14 +91,56 @@ export default component$(() => {
     }
   });
 
+
+
   const navigate = $((page: string) => {
     store.currentPage = page;
     if (window.innerWidth < 768) store.isSidebarOpen = false; // Close on mobile
   });
 
   const translate = (key: string) => {
-    return translations[store.selectedLanguage][key] || key;
+    const translation = translations[store.selectedLanguage][key] || key;
+    // Replace {username} placeholder with actual username
+    return translation.replace("{username}", store.username);
   };
+
+  // Load selected language from localStorage when component is visible
+  useVisibleTask$(() => {
+    const savedLanguage = localStorage.getItem("selectedLanguage");
+    if (savedLanguage) {
+      store.selectedLanguage = savedLanguage;
+    }
+  });
+
+    // Update username from localStorage when the component becomes visible
+  useVisibleTask$(() => {
+    const username = localStorage.getItem("username") || "Guest";
+    store.username = username;
+  });  
+  
+  // Logout function
+  const navigateLogout = useNavigate();
+
+  const logout = $(() => {
+    // Delete the authentication cookie
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+
+    // Optionally clear any localStorage items related to the user
+    localStorage.removeItem("username");
+
+    // Redirect to the login page or home page
+    navigateLogout("/auth");  
+  });
+
+
+
+
+    // Update localStorage when language changes
+    const handleLanguageChange = $((event: Event) => {
+      const newLanguage = (event.target as HTMLSelectElement).value;
+      store.selectedLanguage = newLanguage;
+      localStorage.setItem("selectedLanguage", newLanguage);
+    });
 
   return (
     <div class="flex min-h-screen">
@@ -156,11 +199,12 @@ export default component$(() => {
         {/* Top Navbar */}
         <header class="bg-white shadow-md p-4 flex justify-between items-center">
           <button class="md:hidden" onClick$={toggleSidebar}>☰</button>
-          <h1 class="text-xl font-bold">{translate("welcome")}</h1>
+          <h1>Dashboard</h1>
           <div class="flex gap-5">
             <select
               class="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white py-2 px-2 rounded-lg shadow-sm focus:ring focus:ring-blue-500"
-              onChange$={(event) => (store.selectedLanguage = (event.target as HTMLSelectElement).value)}
+              onChange$={handleLanguageChange}
+              value={store.selectedLanguage}
             >
               <option value="en">🇬🇧 English</option>
               <option value="ar">🇸🇦 العربية</option>
@@ -212,13 +256,16 @@ export default component$(() => {
                 </div>
               )}
             </div>
-            <button title="Notification"> 🔔 </button>
+            <button title="Logout" onClick$={logout}> ⏻ </button>
+
             <button title="profile"> 👤 </button>
           </div>
         </header>
 
         {/* Dynamic Page Content */}
         <main class="p-6">
+          <h1 class="text-xl font-bold pb-2">{translate("welcome")}</h1>
+
           {store.currentPage === "home" && <HomeComponent lang={store.selectedLanguage} />}
           {store.currentPage === "sales" && <p>💰 {translate("sales")} Page</p>}
           {store.currentPage === "analytics" && <p>📊 {translate("analytics")} Page</p>}
