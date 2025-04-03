@@ -1,11 +1,6 @@
-import { $, component$, useStore, useResource$, useTask$ } from "@builder.io/qwik";
-import { SupplierComponent } from "./Supplier";
-import { fetchWithLang } from "~/routes/function/fetchLang";
-
-interface Supplier {
-  id: string;
-  company: string;
-}
+import { component$, useStore, useResource$, $ } from '@builder.io/qwik';
+import { fetchWithLang } from '~/routes/function/fetchLang';
+import { SupplierComponent } from './Supplier';
 
 interface Product {
   name: string;
@@ -15,98 +10,113 @@ interface Product {
   unit: string;
 }
 
-interface Purchase {
+interface Purchases {
   priceBought: string;
-  date: string;
 }
 
 interface Store {
-  category: string;
-  supplierId: string;
+  category: {
+    id: string;
+    generalName: string;
+  }[];
+  supplier: {
+    id: string;
+    company: string;
+  }[];
   product: Product;
-  purchases: Purchase;
-  categories: string[]; // To store categories
-  suppliers: Supplier[]; // To store suppliers
-  message: string; // To show success/error messages
-  isSuccess: boolean; // To track success or failure
+  purchases: Purchases;
+  modal: {
+    isOpen: boolean;
+    message: string;
+    isSuccess: boolean;
+  };
 }
 
 export const ProductComponent = component$(() => {
   const store = useStore<Store>({
-    category: "",
-    supplierId: "",
-    product: { name: "", priceSold: "", stock: "", minStock: "", unit: "" },
-    purchases: { priceBought: "", date: "" },
-    categories: [],
-    suppliers: [],
-    message: "",
-    isSuccess: false,
+    category: [],
+    supplier: [],
+    product: {
+      name: '',
+      priceSold: '',
+      stock: '',
+      minStock: '',
+      unit: '',
+    },
+    purchases: {
+      priceBought: '',
+    },
+    modal: {
+      isOpen: false,
+      message: '' as string,
+      isSuccess: false,
+    }
   });
 
   // Fetch categories from backend with error handling
-  const categoriesResource = useResource$<string[]>(async () => {
+  useResource$<any>(async () => {
     try {
-      const res = await fetchWithLang("http://localhost:3000/categories", {
-        method: "GET",
-        credentials: "include", // Send cookies
+      const res = await fetchWithLang('http://localhost:3000/categories', {
+        method: 'GET',
+        credentials: 'include',
       });
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch categories: ${res.statusText}`);
-      }
-
+  
       const data = await res.json();
-
-      if (!data || data.length === 0) {
-        console.warn("No categories found.");
-        return []; // Return an empty array instead of failing
+  
+      if (!res.ok || !data.success) {
+        store.modal = { isOpen: true, message: data.message || 'Tatizo limejitokeza', isSuccess: false };
+        return []; // Return empty array on failure
       }
-      const generalNames = data.data.map((item: any) => item.generalName);
-      store.categories = generalNames; // Array of general names
-      store.message = data.message || "Categories fetched successfully";
-      store.isSuccess = true;
-
-
-      return data.data;
+  
+      store.category = data.data;
+      return data.data; // Ensure reactivity by returning data
     } catch (error) {
-      store.categories = [];
-      store.message = "Tatizo limejitokeza"; // Error message
-      store.isSuccess = false;
-      return []; // Return empty array to avoid breaking UI
+      store.category = [];
+      console.error("Error: ", error);
+      store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+      return []; // Return empty array in case of an error
     }
   });
-
-  console.log(store.categories)
-
+  
   // Fetch suppliers from backend with error handling
-  const suppliersResource = useResource$<Supplier[]>(async () => {
+  useResource$<any>(async () => {
     try {
-      const res = await fetchWithLang("http://localhost:3000/suppliers", {
-        method: "GET",
-        credentials: "include", // Send cookies
+      const res = await fetchWithLang('http://localhost:3000/suppliers', {
+        method: 'GET',
+        credentials: 'include',
       });
-
+  
       if (!res.ok) {
         throw new Error(`Failed to fetch suppliers: ${res.statusText}`);
       }
-
+  
       const data = await res.json();
-
-      if (!data || data.length === 0) {
-        console.warn("No suppliers found.");
-        return []; // Prevent breaking the page
-      }
-
-      return data;
+  
+      store.supplier = data.data;
+      return data.data; // Ensure reactivity by returning data
     } catch (error) {
-      return []; // Avoid breaking the UI
+      store.supplier = [];
+      console.error("Error: ", error);
+      store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+      return []; // Return empty array on error
     }
   });
+  
 
   // Handle input changes for the form
   const handleInputChange = $((field: keyof Store, value: string) => {
-    store[field] = value as never;
+    if (field === 'category') {
+      const selectedCategory = store.category.find(cat => cat.id === value);
+      if (selectedCategory) store.category = [selectedCategory]; // Ensure it's an array
+    } else if (field === 'supplier') {
+      const selectedSupplier = store.supplier.find(sup => sup.id === value);
+      if (selectedSupplier) store.supplier = [selectedSupplier]; // Ensure it's an array
+    } else {
+      (store[field] as any) = value;
+    }
   });
+  
+  
 
   // Handle nested input changes for product and purchases
   const handleNestedInputChange = $((field: keyof Store, key: string, value: string) => {
@@ -115,70 +125,154 @@ export const ProductComponent = component$(() => {
 
   // Handle form submission
   const handleSubmit = $(async () => {
-    const formData = new FormData();
-    formData.append("category", store.category);
-    formData.append("supplierId", store.supplierId);
-    formData.append("product[name]", store.product.name);
-    formData.append("product[priceSold]", store.product.priceSold);
-    formData.append("product[stock]", store.product.stock);
-    formData.append("product[minStock]", store.product.minStock);
-    formData.append("product[unit]", store.product.unit);
-    formData.append("purchases[priceBought]", store.purchases.priceBought);
-    formData.append("purchases[date]", store.purchases.date);
-
-    console.log("Form Data Submitted:", formData);
+    try {
+      // Ensure no fields are empty
+      if (!store.product.name || !store.product.priceSold || !store.product.stock || 
+          !store.product.minStock || !store.product.unit || !store.purchases.priceBought ||
+          store.category.length === 0 || store.supplier.length === 0) {
+        store.modal = { isOpen: true, message: 'Tafadhali jaza taarifa zote sahihi', isSuccess: false };
+        return;
+      }
+  
+      // Convert priceSold, stock, minStock, priceBought to numbers
+      const priceSold = Number(store.product.priceSold);
+      const stock = Number(store.product.stock);
+      const minStock = Number(store.product.minStock);
+      const priceBought = Number(store.purchases.priceBought);
+  
+      if (isNaN(priceSold) || isNaN(stock) || isNaN(minStock) || isNaN(priceBought)) {
+        store.modal = { isOpen: true, message: 'Tafadhali weka namba tu sehemu zinazohitajika', isSuccess: false };
+        return;
+      }
+  
+      // Restructure payload
+      const productPayload = {
+        name: store.product.name,
+        priceSold,
+        stock,
+        minStock,
+        priceBought,
+        unit: store.product.unit,
+        categoryId: store.category[0]?.id, // Use ID instead of full object
+        supplierId: store.supplier[0]?.id  // Use ID instead of full object
+      };
+    
+      // Send data to backend
+      const response = await fetchWithLang('http://localhost:3000/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productPayload),
+        credentials: 'include',
+      });
+  
+      const resData = await response.json();
+  
+      // Check response
+      if (!response.ok || !resData.success) { // Fix typo `successs`
+        store.modal = { isOpen: true, message: resData.message || 'Tatizo limejitokeza', isSuccess: false };
+        return;
+      }
+  
+  
+      // Reset form
+      store.category = [];
+      store.supplier = [];
+      store.product = { name: '', priceSold: '', stock: '', minStock: '', unit: '' };
+      store.purchases = { priceBought: '' };
+  
+      store.modal = { isOpen: true, message: resData.message || 'Umefanikiwa', isSuccess: true };
+  
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+    }
   });
-
   
   return (
     <>
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">Step 1:</h1>
       <SupplierComponent />
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">Step 2:</h1>
-
       <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-5 border-2 border-gray-600">
         <h2 class="text-2xl font-bold mb-4">Add Product</h2>
         <div class="grid grid-cols-2 gap-4">
           {/* Category Dropdown */}
-          <select class="border p-2 rounded" onChange$={(e) => handleInputChange("category", (e.target as HTMLSelectElement).value)}>
+          <select
+            class="border p-2 rounded w-full"
+            onChange$={(e) => handleInputChange('category', (e.target as HTMLSelectElement).value)}
+          >
             <option value="">Select Category</option>
-            {
-              store.categories.length > 0 ? (
-                store.categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))
-              ) : (
-                <option disabled>No Categories Found</option>
-              )
-            }
-          </select>
-
-          {/* Supplier Dropdown */}
-          <select class="border p-2 rounded" onChange$={(e) => handleInputChange("supplierId", (e.target as HTMLSelectElement).value)}>
-            <option value="">Select Supplier</option>
-            {suppliersResource.value && suppliersResource.value.length > 0 ? (
-              suppliersResource.value.map((supplier) => (
-                <option key={supplier.id} value={supplier.id}>{supplier.company}</option>
+            {store.category.length > 0 ? (
+              store.category.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.generalName}
+                </option>
               ))
             ) : (
-              <option disabled>No Suppliers Found</option>
+              <option disabled>No Categories Found</option>
             )}
           </select>
 
-          <input class="border p-2 rounded" placeholder="Product Name" onInput$={(e) => handleNestedInputChange("product", "name", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Price Sold" type="number" onInput$={(e) => handleNestedInputChange("product", "priceSold", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Stock" type="number" onInput$={(e) => handleNestedInputChange("product", "stock", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Min Stock" type="number" onInput$={(e) => handleNestedInputChange("product", "minStock", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Unit (e.g., kg)" onInput$={(e) => handleNestedInputChange("product", "unit", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Price Bought" type="number" onInput$={(e) => handleNestedInputChange("purchases", "priceBought", (e.target as HTMLInputElement).value)} />
-          <input class="border p-2 rounded" placeholder="Purchase Date" type="date" onInput$={(e) => handleNestedInputChange("purchases", "date", (e.target as HTMLInputElement).value)} />
+          {/* Supplier Dropdown */}
+          <select
+            class="border p-2 rounded w-full"
+            onChange$={(e) => handleInputChange('supplier', (e.target as HTMLSelectElement).value)}
+          >
+            <option value="">Select Supplier</option>
+            {store.supplier.length > 0 ? (
+              store.supplier.map((supplier) => (
+                <option key={supplier.id} value={supplier.id}>
+                  {supplier.company}
+                </option>
+              ))
+            ) : (
+              <option disabled>No Supplier Found</option>
+            )}
+          </select>
+
+          {/* Product Inputs */}
+          {Object.keys(store.product).map((key) => (
+            <input
+              key={key}
+              class="border p-2 rounded w-full"
+              placeholder={`Product ${key.charAt(0).toUpperCase() + key.slice(1)}`}
+              type={key === 'priceSold' || key === 'stock' || key === 'minStock' ? 'number' : 'text'}
+              onInput$={(e) => handleNestedInputChange('product', key, (e.target as HTMLInputElement).value)}
+            />
+          ))}
+
+          {/* Purchases Inputs */}
+          {Object.keys(store.purchases).map((key) => (
+            <input
+              key={key}
+              class="border p-2 rounded w-full"
+              placeholder={`Purchases ${key.charAt(0).toUpperCase() + key.slice(1)}`}
+              type={key === 'priceBought' ? 'number' : 'text'}
+              onInput$={(e) => handleNestedInputChange('purchases', key, (e.target as HTMLInputElement).value)}
+            />
+          ))}
         </div>
-        <button class="bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500" onClick$={handleSubmit}>
+
+        {/* Submit Button */}
+        <button
+          class="bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500"
+          onClick$={handleSubmit}
+        >
           Submit
         </button>
       </div>
+
+        {/* Modal Popup */}
+        {store.modal.isOpen && (
+          <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">
+            <div class="bg-white p-6 rounded shadow-lg text-center">
+              <p class={store.modal.isSuccess ? 'text-green-600' : 'text-red-600'}>{store.modal.message}</p>
+              <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded" onClick$={() => (store.modal.isOpen = false)}>
+                Ok
+              </button>
+            </div>
+          </div>
+        )}
     </>
   );
 });
