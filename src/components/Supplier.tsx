@@ -10,11 +10,11 @@ export const SupplierComponent = component$((props: {lang: string}) => {
     errors: {
       name: "",
       contact: ""
-    },
+    } as {[key: string]: string},
     valid: {
       name: false,
       contact: false
-    },
+    } as {[key: string]: boolean},
     modal: {
       isOpen: false,
       message: "" as string,
@@ -23,6 +23,7 @@ export const SupplierComponent = component$((props: {lang: string}) => {
   });
 
   // Validation Function
+
   const validateField = $((field: string, value: string) => {
     let error = "";
     let isValid = false;
@@ -37,8 +38,10 @@ export const SupplierComponent = component$((props: {lang: string}) => {
   });
 
   // Handle Input Change
-  const handleInputChange = $((field: string, value: string) => {
-    formState[field] = value.trim();
+  type FormField = keyof Pick<typeof formState, "name" | "contact" | "category">;
+
+  const handleInputChange = $((field: FormField, value: string) => {
+    formState[field] = value.trim(); // Now type-safe
     validateField(field, value);
   });
 
