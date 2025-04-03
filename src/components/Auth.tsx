@@ -51,14 +51,16 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
   });
 
   // Update field values & validate
-  const handleInputChange = $((field: string, value: string) => {
-    let sanitizedValue = value.trim();
+  type StateField = keyof Pick<typeof state, "name" | "email" | "username" | "password">;
 
+  const handleInputChange = $((field: StateField, value: string) => {
+    let sanitizedValue = value.trim();
+  
     if (field === 'name' || field === 'username') {
       sanitizedValue = sanitizedValue.toLowerCase();
     }
-
-    state[field as keyof typeof state] = sanitizedValue;
+  
+    state[field] = sanitizedValue; // Now type-safe
     validateField(field, sanitizedValue);
   });
 
