@@ -22,6 +22,10 @@ const translations: Record<string, Translation> = {
     price: "Price",
     stock: "Stock",
     graph_title: "Sales Chart in a week", // English translation
+    step_1: "Step 1 :",
+    step_2: "Step 2 :",
+    addPrd: "Add Product",
+    addSupp: "Add Supplier",
   },
   fr: {
     total_profit: "Profit total",
@@ -42,6 +46,10 @@ const translations: Record<string, Translation> = {
     stock: "Stock",
     recently_added_products: "Produits Ajoutés Récemment", // French translation
     graph_title: "Graphique des ventes en une semaine", // French translatio
+    step_1: "Étape 1 :",
+    step_2: "Étape 2 :",
+    addPrd: "Ajouter un produit",
+    addSupp: "Ajouter un fournisseur",
   },
   sw: {
     total_profit: "Faida jumla",
@@ -62,6 +70,10 @@ const translations: Record<string, Translation> = {
     stock: "Hisa",
     recently_added_products: "Bidhaa Zilizoongezwa Hivi Karibuni", // Swahili translation
     graph_title: "Chati ya Mauzo kwa wiki", // Swahili translation
+    step_1: "Hatua ya 1 :",
+    step_2: "Hatua ya 2 :",
+    addPrd: "Ongeza Bidhaa", // Swahili translation
+    addSupp: "Ongeza Muuzaji", // Swahili translation
 
   },
   ar: {
@@ -82,7 +94,11 @@ const translations: Record<string, Translation> = {
     product: "منتج",
     price: "السعر",
     stock: "المخزون",
-    graph_title: "رسم بياني للمبيعات في أسبوع"
+    graph_title: "رسم بياني للمبيعات في أسبوع",
+    step_1: ": الخطوة 1",
+    step_2: ": الخطوة 2",
+    addPrd: "إضافة منتج", // Arabic translation
+    addSupp: "إضافة مورد", // Arabic translation
   },
 };
 

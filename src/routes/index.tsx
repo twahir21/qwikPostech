@@ -285,7 +285,7 @@ export default component$(() => {
           {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
           {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
-          {store.currentPage === "products" && <ProductComponent />}
+          {store.currentPage === "products" && <ProductComponent lang={store.selectedLanguage} />}
           {store.currentPage === "customers" && <p>👥 {translate("customers")} List</p>}
           {store.currentPage === "suppliers" && <p>🔗 {translate("suppliers")} Directory</p>}
           {store.currentPage === "settings" && <p>{translate("settings")} page</p>}

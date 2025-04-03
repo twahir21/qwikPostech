@@ -1,7 +1,8 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
 import { fetchWithLang } from "~/routes/function/fetchLang";
+import { Translate } from "./Language";
 
-export const SupplierComponent = component$(() => {
+export const SupplierComponent = component$((props: {lang: string}) => {
   const formState = useStore({
     name: "",
     contact: "",
@@ -92,7 +93,9 @@ export const SupplierComponent = component$(() => {
 
   return (
     <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-5 border-2 border-gray-600">
-      <h2 class="text-xl font-bold mb-4">Ongeza Supplier</h2>
+      <h2 class="text-xl font-bold mb-4">
+        <Translate lang={props.lang} keys={['addSupp']}/>
+        </h2>
       <form onSubmit$={handleSubmit} class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Jina la Supplier</label>
