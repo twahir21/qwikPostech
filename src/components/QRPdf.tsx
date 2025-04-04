@@ -1,8 +1,8 @@
 import { Translate } from "./Language";
-import { component$, useStore, $ } from '@builder.io/qwik';
+import { component$, useStore, $, useResource$ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 
-export const QrPdf = component$((props: {lang: string}) => {
+export const QrPdf = component$((props: { lang: string }) => {
   const store = useStore({
     isLoading: false, // Tracks if the API request is in progress
     modal: {
@@ -10,7 +10,33 @@ export const QrPdf = component$((props: {lang: string}) => {
       message: '',
       isSuccess: false,
     },
+    isButtonDisabled: true,
   });
+
+  // check if QrCode is needed
+  useResource$(async () => {
+    try {
+      const response = await fetchWithLang('http://localhost:3000/check-isQrCode', {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || 'Failed to fetch QR code status.');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        store.isButtonDisabled = false; // Enable the button if QR codes are needed
+      }
+      else {
+        store.isButtonDisabled = true; // Disable the button if no QR codes are needed
+      }
+    } catch (error) {
+      console.log("Err", error);
+    }
+  })
 
   // Handle Generate QR Codes Button Click
   const generateQRCodes = $(async () => {
@@ -23,16 +49,25 @@ export const QrPdf = component$((props: {lang: string}) => {
         credentials: 'include',
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
+        const result = await response.json();
         throw new Error(result.message || 'Failed to generate QR codes.');
       }
+
+      // Trigger download of the zip file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qrcodes_${Date.now()}.zip`; // Set the filename
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
 
       // Show success message
       store.modal = {
         isOpen: true,
-        message: 'QR codes generated successfully!',
+        message: 'QR codes imetengenezwa kwa mafanikio na zipu imeshushwa.',
         isSuccess: true,
       };
     } catch (error) {
@@ -49,35 +84,28 @@ export const QrPdf = component$((props: {lang: string}) => {
     }
   });
 
+
   return (
     <>
       {/* Generate QR Codes Button */}
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
-        <Translate lang={props.lang} keys={['step_3']} /> 
+        <Translate lang={props.lang} keys={['step_3']} />
       </h1>
       <button
         class={`bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500 ${
-          store.isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          store.isLoading || store.isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''
         }`}
         onClick$={generateQRCodes}
-        disabled={store.isLoading}
+        disabled={store.isLoading || store.isButtonDisabled}                
       >
         {store.isLoading ? (
           // Custom Loader
-          <div class="loaderCustom"></div>
+          <div class="inline-flex">
+            <div class="loaderCustom"></div>
+          </div>
         ) : (
           'Generate QR Codes'
         )}
-      </button>
-
-      {/* Generate PDF */}
-      <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
-        <Translate lang={props.lang} keys={['step_4']} /> 
-      </h1>
-
-      <button
-        class="bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500"
-      > Print QR codes 
       </button>
 
       {/* Modal Popup */}
