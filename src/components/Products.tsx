@@ -2,6 +2,7 @@ import { component$, useStore, useResource$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 import { SupplierComponent } from './Supplier';
 import { Translate } from './Language';
+import { QrPdf } from './QRPdf';
 
 interface Product {
   name: string;
@@ -198,6 +199,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
         <Translate lang={props.lang} keys={['step_2']} /> 
       </h1>
+
       <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-5 border-2 border-gray-600">
         <h2 class="text-2xl font-bold mb-4">
           <Translate lang={props.lang} keys={['addPrd']} />
@@ -268,7 +270,9 @@ export const ProductComponent = component$((props: {lang: string}) => {
           Submit
         </button>
       </div>
-
+        
+      <QrPdf lang={props.lang}/>
+      
         {/* Modal Popup */}
         {store.modal.isOpen && (
           <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">

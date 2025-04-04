@@ -24,6 +24,8 @@ const translations: Record<string, Translation> = {
     graph_title: "Sales Chart in a week", // English translation
     step_1: "Step 1 :",
     step_2: "Step 2 :",
+    step_3: "Step 3 :",
+    step_4: "Step 4 :",
     addPrd: "Add Product",
     addSupp: "Add Supplier",
   },
@@ -48,6 +50,8 @@ const translations: Record<string, Translation> = {
     graph_title: "Graphique des ventes en une semaine", // French translatio
     step_1: "Étape 1 :",
     step_2: "Étape 2 :",
+    step_3: "Étape 3 :",
+    step_4: "Étape 4 :",
     addPrd: "Ajouter un produit",
     addSupp: "Ajouter un fournisseur",
   },
@@ -72,6 +76,8 @@ const translations: Record<string, Translation> = {
     graph_title: "Chati ya Mauzo kwa wiki", // Swahili translation
     step_1: "Hatua ya 1 :",
     step_2: "Hatua ya 2 :",
+    step_3: "Hatua ya 3 :",
+    step_4: "Hatua ya 4 :",
     addPrd: "Ongeza Bidhaa", // Swahili translation
     addSupp: "Ongeza Muuzaji", // Swahili translation
 
@@ -97,6 +103,8 @@ const translations: Record<string, Translation> = {
     graph_title: "رسم بياني للمبيعات في أسبوع",
     step_1: ": الخطوة 1",
     step_2: ": الخطوة 2",
+    step_3: ": الخطوة 3",
+    step_4: ": الخطوة 4",
     addPrd: "إضافة منتج", // Arabic translation
     addSupp: "إضافة مورد", // Arabic translation
   },
