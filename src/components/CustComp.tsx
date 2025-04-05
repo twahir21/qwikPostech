@@ -17,7 +17,7 @@ interface Product {
   isQRCode: boolean;
 }
 
-export const CrudPrdComponent =  component$(() => {
+export const CustomersCrudComponent =  component$(() => {
   const products = useSignal<Product[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
@@ -103,6 +103,10 @@ export const CrudPrdComponent =  component$(() => {
   
 
   return (
+    <>
+    <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
+    Read, Update and Delete Customer :
+    </h1>
     <div class="p-4 max-w-5xl mx-auto">
       <h1 class="text-xl font-bold mb-4 text-center">📦 Products</h1>
 
@@ -363,5 +367,6 @@ export const CrudPrdComponent =  component$(() => {
 
 
     </div>
-  );
+    </>
+  ); 
 });

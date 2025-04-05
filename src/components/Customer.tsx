@@ -1,4 +1,5 @@
 import { component$, useStore, $, useComputed$ } from "@builder.io/qwik";
+import { CustomersCrudComponent } from "./CustComp";
 
 export const CustomerComponent =  component$(() => {
   const customer = useStore({
@@ -70,6 +71,8 @@ export const CustomerComponent =  component$(() => {
         </form>
       </div>
     </div>
+
+    <CustomersCrudComponent />
 </>
   );
 });

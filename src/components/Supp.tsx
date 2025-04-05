@@ -17,7 +17,7 @@ interface Product {
   isQRCode: boolean;
 }
 
-export const CrudPrdComponent =  component$(() => {
+export const SuppCrudComponent =  component$(() => {
   const products = useSignal<Product[]>([]);
   const total = useSignal(0);
   const search = useSignal('');

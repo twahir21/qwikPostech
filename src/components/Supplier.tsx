@@ -95,7 +95,8 @@ export const SupplierComponent = component$((props: {lang: string}) => {
   });
 
   return (
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-5 border-2 border-gray-600">
+    <>
+        <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-5 border-2 border-gray-600">
       <h2 class="text-xl font-bold mb-4">
         <Translate lang={props.lang} keys={['addSupp']}/>
         </h2>
@@ -157,5 +158,6 @@ export const SupplierComponent = component$((props: {lang: string}) => {
         </div>
       )}
     </div>
+    </>
   );
 });

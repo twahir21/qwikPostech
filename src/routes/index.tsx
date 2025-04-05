@@ -5,6 +5,7 @@ import { HomeComponent } from "~/components/Home";
 import { ProductComponent } from "~/components/Products";
 import { CustomerComponent } from "~/components/Customer";
 import { CrudPrdComponent } from "~/components/PrdComponent";
+import { SuppCrudComponent } from "~/components/Supp";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -295,7 +296,7 @@ export default component$(() => {
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
           {store.currentPage === "products" && <CrudPrdComponent /> }
           {store.currentPage === "customers" && <CustomerComponent />}
-          {store.currentPage === "suppliers" && <p>🔗 {translate("suppliers")} Directory</p>}
+          {store.currentPage === "suppliers" && <SuppCrudComponent />}
           {store.currentPage === "settings" && <p>{translate("settings")} page</p>}
         </main>
       </div>
