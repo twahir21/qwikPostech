@@ -1,4 +1,3 @@
-// src/routes/products/index.tsx
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
 
 interface Product {
@@ -17,7 +16,7 @@ interface Product {
   isQRCode: boolean;
 }
 
-export default component$(() => {
+export const CrudPrdComponent =  component$(() => {
   const products = useSignal<Product[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
@@ -44,11 +43,14 @@ export default component$(() => {
         throw new Error(`Failed to fetch products: ${text}`);
       }
 
+
       const json = await res.json();
       if (!json.success) {
         throw new Error(json.message || 'Failed to fetch products');
       }
       products.value = json.data;
+
+      console.log(products.value);
       total.value = json.total;
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -77,7 +79,7 @@ export default component$(() => {
       />
 
       {/* Desktop Table */}
-      <div class="hidden sm:block border border-gray-300 rounded overflow-hidden">
+     <div class="hidden sm:block border border-gray-300 rounded overflow-hidden">
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
@@ -100,7 +102,7 @@ export default component$(() => {
               products.value.map((product) => (
                 <tr key={product.id} class="border-b border-gray-200">
                   <td class="p-3">{product.name}</td>
-                  <td class="p-3">Ksh {product.priceSold}</td>
+                  <td class="p-3">Tsh {product.priceSold} /=</td>
                   <td class="p-3">{product.stock}</td>
                   <td class="p-3">{product.unit}</td>
                   <td class="p-3">
@@ -151,7 +153,6 @@ export default component$(() => {
           </div>
         ))}
       </div>
-
       {/* Pagination */}
       <div class="mt-6 flex justify-between items-center">
         <button

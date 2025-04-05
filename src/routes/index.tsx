@@ -3,6 +3,8 @@ import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
 import { ProductComponent } from "~/components/Products";
+import { CustomerComponent } from "~/components/Customer";
+import { CrudPrdComponent } from "~/components/PrdComponent";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -19,6 +21,7 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Customers List",
     suppliers: "Suppliers Directory",
     settings: "Settings",
+    start: "Get Started"
   },
   ar: {
     welcome: "أهلاً، {username}",
@@ -33,6 +36,7 @@ const translations: Record<string, Record<string, string>> = {
     customers: "قائمة العملاء",
     suppliers: "دليل الموردين",
     settings: "الإعدادات",
+    start: "ابدأ" 
   },
   sw: {
     welcome: "Karibu, {username}",
@@ -47,6 +51,7 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Orodha ya Wateja",
     suppliers: "Orodha ya Wauzaji",
     settings: "Mipangilio",
+    start: "Anza hapa"
   },
   fr: {
     welcome: "Bienvenue, {username}",
@@ -61,6 +66,7 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Liste des Clients",
     suppliers: "Répertoire des Fournisseurs",
     settings: "Paramètres",
+    start: "Commencer ici"
   },
 };
 
@@ -179,6 +185,7 @@ export default component$(() => {
         <nav class="mt-5">
           {[
             { name: "home", emoji: "🏠" },
+            {name: "start", emoji: "🚀"},
             { name: "sales", emoji: "💰" },
             { name: "analytics", emoji: "📊" },
             { name: "receipts", emoji: "🧾" },
@@ -279,14 +286,15 @@ export default component$(() => {
           <h1 class="text-xl font-bold pb-2">{translate("welcome")}</h1>
 
           {store.currentPage === "home" && <HomeComponent lang={store.selectedLanguage} />}
+          {store.currentPage === "start" &&  <ProductComponent lang={store.selectedLanguage} />}
           {store.currentPage === "sales" && <p>💰 {translate("sales")} Page</p>}
           {store.currentPage === "analytics" && <p>📊 {translate("analytics")} Page</p>}
           {store.currentPage === "receipts" && <p>🧾 {translate("receipts")} Page</p>}
           {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
           {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
-          {store.currentPage === "products" && <ProductComponent lang={store.selectedLanguage} />}
-          {store.currentPage === "customers" && <p>👥 {translate("customers")} List</p>}
+          {store.currentPage === "products" && <CrudPrdComponent /> }
+          {store.currentPage === "customers" && <CustomerComponent />}
           {store.currentPage === "suppliers" && <p>🔗 {translate("suppliers")} Directory</p>}
           {store.currentPage === "settings" && <p>{translate("settings")} page</p>}
         </main>
