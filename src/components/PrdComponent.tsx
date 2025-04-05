@@ -23,6 +23,10 @@ export const CrudPrdComponent =  component$(() => {
   const currentPage = useSignal(1);
   const perPage = 10;
   const isLoading = useSignal(false);
+  const selectedProduct = useSignal<Product | null>(null);
+  const isEditing = useSignal(false);
+  const isDeleting = useSignal(false);
+
 
   const fetchProducts = $(async () => {
     isLoading.value = true;
@@ -66,6 +70,36 @@ export const CrudPrdComponent =  component$(() => {
   });
 
   const totalPages = () => Math.ceil(total.value / perPage);
+
+  const editProduct = $((product: Product) => {
+    selectedProduct.value = { ...product }; // Prepopulate the form with product data
+    isEditing.value = true;
+  });
+  
+  const deleteProduct = $(async (productId: string) => {
+    try {
+      const res = await fetch(`http://localhost:3000/products/${productId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!res.ok) {
+        const text = await res.text(); // Fallback for non-JSON errors
+        throw new Error(`Failed to delete product: ${text}`);
+      }
+  
+      // If deletion is successful, remove the product from the list
+      products.value = products.value.filter(product => product.id !== productId);
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+    } finally {
+      isDeleting.value = false;
+    }
+  });
+  
 
   return (
     <div class="p-4 max-w-5xl mx-auto">
@@ -117,9 +151,20 @@ export const CrudPrdComponent =  component$(() => {
                     </span>
                   </td>
                   <td class="p-3 space-x-2">
-                    <button class="text-blue-600 hover:underline">Edit</button>
-                    <button class="text-red-600 hover:underline">Delete</button>
-                  </td>
+                    <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+                        Edit
+                    </button>
+                    <button
+                        class="text-red-600 hover:underline"
+                        onClick$={() => {
+                        selectedProduct.value = product;
+                        isDeleting.value = true;
+                        }}
+                    >
+                        Delete
+                    </button>
+                    </td>
+
                 </tr>
               ))
             )}
@@ -146,10 +191,21 @@ export const CrudPrdComponent =  component$(() => {
                 {product.status}
               </span>
             </div>
-            <div class="mt-2 flex gap-2">
-              <button class="text-blue-600 hover:underline text-sm">Edit</button>
-              <button class="text-red-600 hover:underline text-sm">Delete</button>
-            </div>
+            <td class="p-3 space-x-2">
+                <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+                    Edit
+                </button>
+                <button
+                    class="text-red-600 hover:underline"
+                    onClick$={() => {
+                    selectedProduct.value = product;
+                    isDeleting.value = true;
+                    }}
+                >
+                    Delete
+                </button>
+                </td>
+
           </div>
         ))}
       </div>
@@ -173,6 +229,148 @@ export const CrudPrdComponent =  component$(() => {
           Next
         </button>
       </div>
+
+      {isEditing.value && selectedProduct.value && (
+  <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold">Edit Product</h2>
+
+      <div class="mt-4">
+        <label class="block text-sm">Name</label>
+        <input
+          type="text"
+          class="w-full p-2 border border-gray-300 rounded"
+          value={selectedProduct.value.name}
+          onInput$={(e) => (selectedProduct.value!.name = (e.target as HTMLInputElement).value)}
+        />
+      </div>
+      <div class="mt-4">
+        <label class="block text-sm">Price</label>
+        <input
+          type="text"
+          class="w-full p-2 border border-gray-300 rounded"
+          value={selectedProduct.value.priceSold}
+          onInput$={(e) => (selectedProduct.value!.priceSold = (e.target as HTMLInputElement).value )}
+        />
+      </div>
+      <div class="mt-4">
+        <label class="block text-sm">Stock</label>
+        <input
+          type="number"
+          class="w-full p-2 border border-gray-300 rounded"
+          value={selectedProduct.value.stock}
+          onInput$={(e) => {
+            const value = (e.target as HTMLInputElement).value;
+            selectedProduct.value!.stock = parseInt(value, 10); // or parseFloat(value) if it's a decimal number
+          }}       
+        />
+      </div>
+      <div class="mt-4">
+        <label class="block text-sm">Unit</label>
+        <input
+          type="text"
+          class="w-full p-2 border border-gray-300 rounded"
+          value={selectedProduct.value.unit}
+          onInput$={(e) => (selectedProduct.value!.unit = (e.target as HTMLInputElement).value)}
+        />
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button
+          class="px-4 py-2 bg-gray-700 text-white rounded"
+          onClick$={async () => {
+            try {
+              const res = await fetch(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(selectedProduct.value),
+              });
+              if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Failed to update product: ${text}`);
+              }
+              const updatedProduct = await res.json();
+              // Update product in the local list
+              const index = products.value.findIndex(p => p.id === updatedProduct.id);
+              if (index > -1) {
+                products.value[index] = updatedProduct;
+              }
+              isEditing.value = false;
+            } catch (err) {
+              console.error('Failed to update product:', err);
+            }
+          }}
+        >
+          Save
+        </button>
+        <button
+          class="px-4 py-2 bg-gray-300 text-black rounded"
+          onClick$={() => {
+            isEditing.value = false;
+            selectedProduct.value = null;
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{isDeleting.value && (
+  <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold">Confirm Deletion</h2>
+      <p class="mt-2 text-sm">Are you sure you want to delete this product?</p>
+      <div class="mt-4 flex gap-2">
+        <button
+          class="px-4 py-2 bg-red-500 text-white rounded"
+          onClick$={() => deleteProduct(selectedProduct.value!.id)}
+        >
+          Delete
+        </button>
+        <button
+          class="px-4 py-2 bg-gray-300 text-black rounded"
+          onClick$={() => {
+            isDeleting.value = false;
+            selectedProduct.value = null;
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{isDeleting.value && (
+  <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <h2 class="text-lg font-semibold">Confirm Deletion</h2>
+      <p class="mt-2 text-sm">Are you sure you want to delete this product?</p>
+      <div class="mt-4 flex gap-2">
+        <button
+          class="px-4 py-2 bg-red-500 text-white rounded"
+          onClick$={() => deleteProduct(selectedProduct.value!.id)}
+        >
+          Delete
+        </button>
+        <button
+          class="px-4 py-2 bg-gray-300 text-black rounded"
+          onClick$={() => {
+            isDeleting.value = false;
+            selectedProduct.value = null;
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 });
