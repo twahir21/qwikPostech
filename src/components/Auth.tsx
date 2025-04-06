@@ -119,7 +119,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
       <div class="bg-white p-6 rounded-lg shadow-md w-96 flex flex-col items-center relative">
         {/* Profile Image */}
         <div class={`absolute -top-12 flex justify-center items-center w-24 h-24 rounded-full border-4 ${state.isLogin ? 'border-double' : 'border-dotted'}`}>
-          <img src={state.isLogin ? '/login-image.jpg' : '/register-image.jpg'} class="w-20 h-20 rounded-full" alt={state.isLogin ? 'Ingia' : 'Jisajili'} />
+          <img src={state.isLogin ? '/login-image.jpg' : '/register-image.jpg'} class="w-20 h-20 rounded-full" alt={state.isLogin ? 'Ingia' : 'Jisajili'} loading='lazy'/>
         </div>
 
         <h2 class="text-2xl font-bold mb-12 mt-16">{state.isLogin ? 'Ingia' : 'Jisajili'}</h2>

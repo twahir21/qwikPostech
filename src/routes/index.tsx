@@ -304,9 +304,52 @@ export default component$(() => {
   );
 });
 
+
 export const head: DocumentHead = {
-  title: "POS Dashboard",
+  title: "POS Dashboard - Manage Sales and Inventory",
   meta: [
-    { name: "description", content: "A Point of Sale (POS) Dashboard built with Qwik" },
-  ],
+    // Basic meta tags
+    { name: "description", content: "A Point of Sale (POS) Dashboard built with Qwik to manage sales, inventory, and customer data." },
+    { name: "keywords", content: "POS, dashboard, sales management, inventory management, Qwik, e-commerce, point of sale system" },
+    { name: "author", content: "Twahir Sudy" },
+    { name: "viewport", content: "width=device-width, initial-scale=1.0" },
+
+    // Open Graph (OG) tags for social media
+    { property: "og:title", content: "POS Dashboard - Manage Sales and Inventory" },
+    { property: "og:description", content: "A modern POS system built with Qwik to efficiently manage sales and inventory in real-time." },
+    { property: "og:image", content: "https://mypostech.store/assets/images/pos-dashboard-thumbnail.jpg" },
+    { property: "og:url", content: "https://mypostech.store/dashboard" },
+    { property: "og:type", content: "website" },
+
+    // Twitter Card meta tags
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: "POS Dashboard - Manage Sales and Inventory" },
+    { name: "twitter:description", content: "A modern POS system built with Qwik to efficiently manage sales and inventory in real-time." },
+    { name: "twitter:image", content: "https://mypostech.store/assets/images/pos-dashboard-thumbnail.jpg" },
+
+    // Structured Data (JSON-LD) for enhanced SEO
+    {
+      name: "application/ld+json",
+      content: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "POS Dashboard",
+        "description": "A Point of Sale (POS) Dashboard built with Qwik to manage sales, inventory, and customer data.",
+        "url": "https://mypostech.store/dashboard",
+        "author": {
+          "@type": "Twahir Sudy",
+          "name": "MyPOS",
+          "url": "https://mypostech.store"
+        },
+        "publisher": {
+          "@type": "Twahir Sudy",
+          "name": "MyPOS",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://mypostech.store/public/newLogo.png"
+          }
+        }
+      })
+    }
+  ]
 };

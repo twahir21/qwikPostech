@@ -1,31 +1,21 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 
-interface Product {
+interface Customer {
   id: string;
   name: string;
-  categoryId: string;
-  priceSold: string;
-  priceBought: string;
-  stock: number;
-  shopId: string;
-  supplierId: string;
-  minStock: number;
-  status: string;
-  unit: string;
+  contact: string
   createdAt: string;
-  updatedAt: string;
-  isQRCode: boolean;
 }
 
 export const CustomersCrudComponent =  component$(() => {
-  const products = useSignal<Product[]>([]);
+  const products = useSignal<Customer[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
   const currentPage = useSignal(1);
   const perPage = 10;
   const isLoading = useSignal(false);
-  const selectedProduct = useSignal<Product | null>(null);
+  const selectedCustomer = useSignal<Customer | null>(null);
   const isEditing = useSignal(false);
   const isDeleting = useSignal(false);
 
@@ -34,7 +24,7 @@ export const CustomersCrudComponent =  component$(() => {
     isLoading.value = true;
     try {
       const res = await fetchWithLang(
-        `http://localhost:3000/products?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
+        `http://localhost:3000/customers?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -56,7 +46,6 @@ export const CustomersCrudComponent =  component$(() => {
       }
       products.value = json.data;
 
-      console.log(products.value);
       total.value = json.total;
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -73,14 +62,14 @@ export const CustomersCrudComponent =  component$(() => {
 
   const totalPages = () => Math.ceil(total.value / perPage);
 
-  const editProduct = $((product: Product) => {
-    selectedProduct.value = { ...product }; // Prepopulate the form with product data
+  const editCustomer = $((customer: Customer) => {
+    selectedCustomer.value = { ...customer }; // Prepopulate the form with product data
     isEditing.value = true;
   });
   
   const deleteProduct = $(async (productId: string) => {
     try {
-      const res = await fetchWithLang(`http://localhost:3000/productsg/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/products/${productId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -104,10 +93,6 @@ export const CustomersCrudComponent =  component$(() => {
   
 
   return (
-    <>
-    <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
-    Read, Update and Delete Customer :
-    </h1>
     <div class="p-4 max-w-5xl mx-auto">
       <h1 class="text-xl font-bold mb-4 text-center">📦 Products</h1>
 
@@ -124,11 +109,7 @@ export const CustomersCrudComponent =  component$(() => {
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
               <th class="p-3 border-b border-gray-200">Name</th>
-              <th class="p-3 border-b border-gray-200">Price Sold</th>
-              <th class="p-3 border-b border-gray-200">Price Bought</th>
-              <th class="p-3 border-b border-gray-200">Stock</th>
-              <th class="p-3 border-b border-gray-200">Unit</th>
-              <th class="p-3 border-b border-gray-200">Status</th>
+              <th class="p-3 border-b border-gray-200">Contact</th>
               <th class="p-3 border-b border-gray-200">Actions</th>
             </tr>
           </thead>
@@ -139,33 +120,26 @@ export const CustomersCrudComponent =  component$(() => {
                   Loading...
                 </td>
               </tr>
-            ) : (
-              products.value.map((product) => (
-                <tr key={product.id} class="border-b border-gray-200">
-                  <td class="p-3">{product.name}</td>
-                  <td class="p-3"> {product.priceSold} /=</td>
-                  <td class="p-3"> {product.priceBought} /=</td>
-                  <td class="p-3">{product.stock}</td>
-                  <td class="p-3">{product.unit}</td>
-                  <td class="p-3">
-                    <span
-                      class={`px-2 py-1 text-xs rounded-full ${
-                        product.status === 'available'
-                          ? 'bg-green-200 text-green-800'
-                          : 'bg-red-200 text-red-800'
-                      }`}
-                    >
-                      {product.status}
-                    </span>
-                  </td>
+            ) : products.value.length === 0 ? (
+              <tr>
+                <td colSpan={7} class="p-4 text-center text-gray-500">
+                Hakuna mteja yoyote, msajili kwanza ....
+                </td>
+              </tr>
+              )
+             : (
+              products.value.map((customer) => (
+                <tr key={customer.id} class="border-b border-gray-200">
+                  <td class="p-3">{customer.name}</td>
+                  <td class="p-3"> {customer.contact} </td>
                   <td class="p-3 space-x-2">
-                    <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+                    <button class="text-blue-600 hover:underline" onClick$={() => editCustomer(customer)}>
                         Edit
                     </button>
                     <button
                         class="text-red-600 hover:underline"
                         onClick$={() => {
-                        selectedProduct.value = product;
+                        selectedCustomer.value = customer;
                         isDeleting.value = true;
                         }}
                     >
@@ -182,32 +156,18 @@ export const CustomersCrudComponent =  component$(() => {
 
       {/* Mobile Cards */}
       <div class="sm:hidden space-y-4">
-        {products.value.map((product) => (
-          <div key={product.id} class="border rounded-lg p-3 bg-white shadow-sm">
-            <div class="font-semibold">{product.name}</div>
-            <div class="text-sm">Price Sold: Tsh {product.priceSold}</div>
-            <div class="text-sm">Price Bought: Tsh {product.priceBought}</div>
-            <div class="text-sm">Stock: {product.stock}</div>
-            <div class="text-sm">Unit: {product.unit}</div>
-            <div class="text-sm mt-1">
-              <span
-                class={`inline-block px-2 py-1 text-xs rounded-full ${
-                  product.status === 'available'
-                    ? 'bg-green-200 text-green-800'
-                    : 'bg-red-200 text-red-800'
-                }`}
-              >
-                {product.status}
-              </span>
-            </div>
+        {products.value.map((customer) => (
+          <div key={customer.id} class="border rounded-lg p-3 bg-white shadow-sm">
+            <div class="font-semibold">{customer.name}</div>
+            <div class="text-sm">Price Sold: Tsh {customer.contact}</div>
             <td class="p-3 space-x-2">
-                <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+                <button class="text-blue-600 hover:underline" onClick$={() => editCustomer(customer)}>
                     Edit
                 </button>
                 <button
                     class="text-red-600 hover:underline"
                     onClick$={() => {
-                    selectedProduct.value = product;
+                    selectedCustomer.value = customer;
                     isDeleting.value = true;
                     }}
                 >
@@ -239,73 +199,48 @@ export const CustomersCrudComponent =  component$(() => {
         </button>
       </div>
 
-      {isEditing.value && selectedProduct.value && (
+      {isEditing.value && selectedCustomer.value && (
   <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-      <h2 class="text-lg font-semibold">Edit Product</h2>
+      <h2 class="text-lg font-semibold">Edit Customers</h2>
 
       <div class="mt-4">
         <label class="block text-sm">Name</label>
         <input
           type="text"
           class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.name}
-          onInput$={(e) => (selectedProduct.value!.name = (e.target as HTMLInputElement).value)}
+          value={selectedCustomer.value.name}
+          onInput$={(e) => (selectedCustomer.value!.name = (e.target as HTMLInputElement).value)}
         />
       </div>
       <div class="mt-4">
         <label class="block text-sm">PriceSold</label>
         <input
-          type="text"
-          class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.priceSold}
-          onInput$={(e) => (selectedProduct.value!.priceSold = (e.target as HTMLInputElement).value )}
-        />
-      </div>
-
-      <div class="mt-4">
-        <label class="block text-sm">PriceBought</label>
-        <input
-            type="text"
-            class="w-full p-2 border border-gray-300 rounded"
-            value={selectedProduct.value.priceBought}
-            onInput$={(e) => (selectedProduct.value!.priceBought = (e.target as HTMLInputElement).value )}
-        />
-
-      </div>
-
-      <div class="mt-4">
-        <label class="block text-sm">Stock</label>
-        <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.stock}
+          value={selectedCustomer.value.contact}
           onInput$={(e) => {
             const value = (e.target as HTMLInputElement).value;
-            selectedProduct.value!.stock = parseInt(value, 10); // or parseFloat(value) if it's a decimal number
-          }}       
+            selectedCustomer.value!.contact = value;
+          }}
+
         />
       </div>
-      <div class="mt-4">
-        <label class="block text-sm">Unit</label>
-        <input
-          type="text"
-          class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.unit}
-          onInput$={(e) => (selectedProduct.value!.unit = (e.target as HTMLInputElement).value)}
-        />
-      </div>
+
       <div class="mt-4 flex gap-2">
         <button
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetchWithLang(`http://localhost:3000/productsg/${selectedProduct.value!.id}`, {
+              console.log('Updating customer:', selectedCustomer.value!.id);
+              const res = await fetchWithLang(`http://localhost:3000/customers/${selectedCustomer.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
+                  'Accept-Language': 'sw', // Adjust as necessary
                 },
-                body: JSON.stringify(selectedProduct.value),
+                body: JSON.stringify(selectedCustomer.value),
+                credentials: 'include',
               });
               if (!res.ok) {
                 const text = await res.text();
@@ -329,7 +264,7 @@ export const CustomersCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-300 text-black rounded"
           onClick$={() => {
             isEditing.value = false;
-            selectedProduct.value = null;
+            selectedCustomer.value = null;
           }}
         >
           Cancel
@@ -348,7 +283,7 @@ export const CustomersCrudComponent =  component$(() => {
       <div class="mt-4 flex gap-2">
         <button
           class="px-4 py-2 bg-red-500 text-white rounded"
-          onClick$={() => deleteProduct(selectedProduct.value!.id)}
+          onClick$={() => deleteProduct(selectedCustomer.value!.id)}
         >
           Delete
         </button>
@@ -356,7 +291,7 @@ export const CustomersCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-300 text-black rounded"
           onClick$={() => {
             isDeleting.value = false;
-            selectedProduct.value = null;
+            selectedCustomer.value = null;
           }}
         >
           Cancel
@@ -368,6 +303,5 @@ export const CustomersCrudComponent =  component$(() => {
 
 
     </div>
-    </>
-  ); 
+  );
 });

@@ -63,3 +63,4 @@ The production build will generate client and server modules by running both cli
 ```shell
 bun build # or `bun build`
 ```
+lighthouse for testing performance and SEO
