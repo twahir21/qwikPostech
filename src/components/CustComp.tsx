@@ -1,4 +1,5 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
+import { fetchWithLang } from '~/routes/function/fetchLang';
 
 interface Product {
   id: string;
@@ -32,7 +33,7 @@ export const CustomersCrudComponent =  component$(() => {
   const fetchProducts = $(async () => {
     isLoading.value = true;
     try {
-      const res = await fetch(
+      const res = await fetchWithLang(
         `http://localhost:3000/products?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
           method: 'GET',
           credentials: 'include',
@@ -79,7 +80,7 @@ export const CustomersCrudComponent =  component$(() => {
   
   const deleteProduct = $(async (productId: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/productsg/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/productsg/${productId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -299,7 +300,7 @@ export const CustomersCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetch(`http://localhost:3000/productsg/${selectedProduct.value!.id}`, {
+              const res = await fetchWithLang(`http://localhost:3000/productsg/${selectedProduct.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',

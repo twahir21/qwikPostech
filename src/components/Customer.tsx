@@ -1,10 +1,17 @@
 import { component$, useStore, $, useComputed$ } from "@builder.io/qwik";
 import { CustomersCrudComponent } from "./CustComp";
+import { fetchWithLang } from "~/routes/function/fetchLang";
 
 export const CustomerComponent =  component$(() => {
   const customer = useStore({
     name: "",
     contact: "",
+  });
+
+  const modal = useStore({
+    isOpen: false,
+    message: "",
+    isSuccess: false,
   });
 
   const handleInputChange = $((event: Event, field: keyof typeof customer) => {
@@ -22,14 +29,29 @@ export const CustomerComponent =  component$(() => {
     const name = customer.name.trim().toLowerCase();
     const contact = customer.contact.trim().toLowerCase();
 
-    const response = await fetch("http://localhost:3000/customers", {
+    const response = await fetchWithLang("http://localhost:3000/customers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ name, contact }),
     });
 
-    console.log("Submitted:", { name, contact, status: response.status });
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(result.message || "Imeshindwa kusajili mteja.");
+    }
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || "Imeshindwa kusajili mteja.");
+    }
+
+    customer.name = "";
+    customer.contact = "";
+     // Instead of replacing modal, update its properties individually
+    modal.isOpen = true;
+    modal.message = data.message || "Customer created successfully";
+    modal.isSuccess = true;
+
   });
 
   return (
@@ -73,6 +95,18 @@ export const CustomerComponent =  component$(() => {
     </div>
 
     <CustomersCrudComponent />
+
+    {/* Modal Popup */}
+    {modal.isOpen && (
+    <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">
+      <div class="bg-white p-6 rounded shadow-lg text-center">
+        <p class={modal.isSuccess ? 'text-green-600' : 'text-red-600'}>{modal.message}</p>
+        <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded" onClick$={() => (modal.isOpen = false)}>
+          Ok
+        </button>
+      </div>
+    </div>
+  )}
 </>
   );
 });

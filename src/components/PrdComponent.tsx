@@ -134,7 +134,14 @@ export const CrudPrdComponent =  component$(() => {
                   Loading...
                 </td>
               </tr>
-            ) : (
+            ) : products.value.length === 0 ? (
+              <tr>
+                <td colSpan={7} class="p-4 text-center text-gray-500">
+                Hakuna bidhaa yoyote, isajili kwanza ....
+                </td>
+              </tr>
+              )
+             : (
               products.value.map((product) => (
                 <tr key={product.id} class="border-b border-gray-200">
                   <td class="p-3">{product.name}</td>

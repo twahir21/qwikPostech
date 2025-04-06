@@ -1,5 +1,6 @@
 // src/routes/products/index.tsx
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
+import { fetchWithLang } from '../function/fetchLang';
 
 interface Product {
   id: string;
@@ -28,7 +29,7 @@ export default component$(() => {
   const fetchProducts = $(async () => {
     isLoading.value = true;
     try {
-      const res = await fetch(
+      const res = await fetchWithLang(
         `http://localhost:3000/products?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
           method: 'GET',
           credentials: 'include',
