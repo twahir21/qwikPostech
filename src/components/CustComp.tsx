@@ -79,7 +79,7 @@ export const CustomersCrudComponent =  component$(() => {
   
   const deleteProduct = $(async (productId: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/products/${productId}`, {
+      const res = await fetch(`http://localhost:3000/productsg/${productId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -299,7 +299,7 @@ export const CustomersCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetch(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
+              const res = await fetch(`http://localhost:3000/productsg/${selectedProduct.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',

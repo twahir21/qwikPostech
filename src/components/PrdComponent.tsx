@@ -1,11 +1,12 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
+import { fetchWithLang } from '~/routes/function/fetchLang';
 
 interface Product {
   id: string;
   name: string;
   categoryId: string;
-  priceSold: string;
-  priceBought: string;
+  priceSold: number;
+  priceBought: number;
   stock: number;
   shopId: string;
   supplierId: string;
@@ -32,7 +33,7 @@ export const CrudPrdComponent =  component$(() => {
   const fetchProducts = $(async () => {
     isLoading.value = true;
     try {
-      const res = await fetch(
+      const res = await fetchWithLang(
         `http://localhost:3000/products?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
           method: 'GET',
           credentials: 'include',
@@ -55,7 +56,6 @@ export const CrudPrdComponent =  component$(() => {
       }
       products.value = json.data;
 
-      console.log(products.value);
       total.value = json.total;
     } catch (err) {
       console.error('Failed to fetch products:', err);
@@ -79,7 +79,7 @@ export const CrudPrdComponent =  component$(() => {
   
   const deleteProduct = $(async (productId: string) => {
     try {
-      const res = await fetch(`http://localhost:3000/products/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/products/${productId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -251,20 +251,29 @@ export const CrudPrdComponent =  component$(() => {
       <div class="mt-4">
         <label class="block text-sm">PriceSold</label>
         <input
-          type="text"
+          type="number"
           class="w-full p-2 border border-gray-300 rounded"
           value={selectedProduct.value.priceSold}
-          onInput$={(e) => (selectedProduct.value!.priceSold = (e.target as HTMLInputElement).value )}
+          onInput$={(e) => {
+            const value = (e.target as HTMLInputElement).value;
+            selectedProduct.value!.priceSold = parseFloat(value);
+          }}
+
         />
       </div>
 
       <div class="mt-4">
         <label class="block text-sm">PriceBought</label>
         <input
-            type="text"
+            type="number"
             class="w-full p-2 border border-gray-300 rounded"
             value={selectedProduct.value.priceBought}
-            onInput$={(e) => (selectedProduct.value!.priceBought = (e.target as HTMLInputElement).value )}
+            onInput$={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              selectedProduct.value!.priceBought = parseFloat(value);
+            }
+          }
+            
         />
 
       </div>
@@ -295,12 +304,15 @@ export const CrudPrdComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetch(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
+              console.log('Updating product:', selectedProduct.value!.id);
+              const res = await fetchWithLang(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
+                  'Accept-Language': 'sw', // Adjust as necessary
                 },
                 body: JSON.stringify(selectedProduct.value),
+                credentials: 'include',
               });
               if (!res.ok) {
                 const text = await res.text();
