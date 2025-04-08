@@ -113,6 +113,7 @@ const handleSubmit = $(async () => {
       quantity: validatedQuantity, // Use validated quantity
       discount: validatedDiscount, // Use validated discount
       productId: state.productId,
+      priceSold: Number(state.query.priceSold),
       calculatedTotal: state.calculatedTotal,
     };
 
