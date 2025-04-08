@@ -14,6 +14,8 @@ export default component$(() => {
   const state = useStore({
     query: {} as Record<string, string>,
     isLoading: true,
+    productId: "",
+    generatedAt: "",
     editableFields: {
       quantity: "1",
       saleType: "cash",
@@ -38,13 +40,15 @@ export default component$(() => {
     const urlParams = new URLSearchParams(location.url.search);
     const params: Record<string, string> = {};
 
-    urlParams.forEach((value, key) => {
-      if (!["shopId", "userId", "productId", "generatedAt"].includes(key)) {
-        params[key] = value;
-      }
-    });
+  urlParams.forEach((value, key) => {
+    if (!["shopId", "userId", "productId"].includes(key)) {
+      params[key] = value;
+    }
+  });
 
     state.query = params;
+    state.productId = params.productId || ""; // Explicitly store productId
+    state.generatedAt = params.generatedAt || "Not provided"; // Store generatedAt with a fallback
     state.editableFields.quantity = params.quantity || "1";
     state.editableFields.saleType = params.saleType || "cash";
     state.editableFields.discount = params.discount || "0";
@@ -96,8 +100,11 @@ const handleSubmit = $(async () => {
       ...state.editableFields,
       quantity: validatedQuantity, // Use validated quantity
       discount: validatedDiscount, // Use validated discount
+      productId: state.productId,
       calculatedTotal: state.calculatedTotal,
     };
+
+    console.log(requestData);
 
     // Send POST request to the backend
     const response = await fetchWithLang("http://localhost:3000/get-data", {
@@ -119,7 +126,6 @@ const handleSubmit = $(async () => {
     const responseData = await response.json();
 
     // Log success message
-    console.log("Transaction submitted successfully:", responseData);
     state.modal = {
       isOpen: true,
       message: responseData.message || "Umefanikiwa",
@@ -128,7 +134,6 @@ const handleSubmit = $(async () => {
     }
   } catch (error) {
     // Handle errors
-    console.error("Error submitting transaction:", error);
     state.modal = {
       isOpen: true,
       message: "Tatizo limejitokeza",
@@ -195,7 +200,7 @@ const handleButtonClick = $((btn: string) => {
               );
             })}
 
-                  {/* Calculator Button & Modal */}
+{/* Calculator Button & Modal */}
 <div class="text-left mb-4">
   <button
     class="p-2 text-white rounded-full"
@@ -354,22 +359,25 @@ const handleButtonClick = $((btn: string) => {
         </div>
       )}
 
-            {/* Modal Popup */}
-            {state.modal.isOpen && (
-        <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">
-          <div class="bg-white p-6 rounded shadow-lg text-center">
-            <p class={state.modal.isSuccess ? 'text-green-600' : 'text-red-600'}>
-              {state.modal.message}
-            </p>
-            <button
-              class="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              onClick$={() => (state.modal.isOpen = false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+{/* Modal Popup */}
+{state.modal.isOpen && (
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full border border-gray-300">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class={`text-lg font-semibold ${state.modal.isSuccess ? 'text-green-600' : 'text-red-600'}`}>
+          {state.modal.isSuccess ? '✅ Success' : '❌ Error'}
+        </h2>
+        <button
+          onClick$={() => (state.modal.isOpen = false)}
+          class="text-gray-500 hover:text-red-600 text-xl"
+        >
+          ✖
+        </button>
+      </div>
+      <p class="text-gray-700">{state.modal.message}</p>
+    </div>
+  </div>
+)}
 
     </div>
   );
