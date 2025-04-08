@@ -23,6 +23,7 @@ export default component$(() => {
       description: "",
       typeDetected: "sales", // Default to 'sales'
     },
+    supplierId: "",
     calculatedTotal: 0, // Calculated dynamically
     showCalculator: false,
     input: "",
@@ -43,7 +44,10 @@ export default component$(() => {
     urlParams.forEach((value, key) => {
       if (key === "productId") {
         state.productId = value; // Assign productId directly to state
-      } else if (!["shopId", "userId"].includes(key)) {
+      }else if(key === "supplierId"){
+        state.supplierId = value;
+      } 
+      else if (!["shopId", "userId"].includes(key)) {
         params[key] = value;
       }
     });
@@ -114,6 +118,8 @@ const handleSubmit = $(async () => {
       discount: validatedDiscount, // Use validated discount
       productId: state.productId,
       priceSold: Number(state.query.priceSold),
+      priceBought: Number(state.query.priceBought),
+      supplierId: state.supplierId,
       calculatedTotal: state.calculatedTotal,
     };
 
