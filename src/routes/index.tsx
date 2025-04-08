@@ -90,7 +90,8 @@ export default component$(() => {
       store.input = "";
     } else if (value === "=") {
       try {
-        store.input = eval(store.input).toString();
+        store.input = store.input = Function('"use strict"; return (' + store.input + ')')();
+
       } catch {
         store.input = "Error";
       }

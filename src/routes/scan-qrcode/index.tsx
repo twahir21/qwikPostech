@@ -5,6 +5,7 @@ import {
   $,
 } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
+import { fetchWithLang } from "../function/fetchLang";
 
 export default component$(() => {
   const location = useLocation();
@@ -20,7 +21,16 @@ export default component$(() => {
       description: "",
       typeDetected: "sales", // Default to 'sales'
     },
-    calculatedAmount: 0, // Calculated dynamically
+    calculatedTotal: 0, // Calculated dynamically
+    showCalculator: false,
+    input: "",
+    isSubmitting: false, // Track if submission is in progress
+    submitTimer: 0, // Countdown timer (in seconds),
+    modal: {
+      isOpen: false,
+      message: '',
+      isSuccess: false,
+    },
   });
 
   // Parse URL parameters and initialize state
@@ -41,10 +51,11 @@ export default component$(() => {
     state.editableFields.description = params.description || "";
     state.editableFields.typeDetected = params.typeDetected || "sales"; // Default to sales
 
-    // Calculate initial amount
+    // Calculate initial total amount
     const priceSold = parseFloat(params.priceSold || "0");
-    const quantity = parseInt(state.editableFields.quantity, 10);
-    state.calculatedAmount = quantity * priceSold;
+    const quantity = parseFloat(state.editableFields.quantity); // Parse as float
+    const discount = parseFloat(state.editableFields.discount);
+    state.calculatedTotal = (quantity * priceSold) - discount;
 
     state.isLoading = false;
   });
@@ -54,24 +65,103 @@ export default component$(() => {
     const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
     state.editableFields[field] = target.value;
 
-    // Recalculate amount when quantity or priceSold changes
-    if (field === "quantity" || field === "typeDetected") {
+    // Recalculate total when quantity, priceSold, or discount changes
+    if (field === "quantity" || field === "discount") {
       const priceSold = parseFloat(state.query.priceSold || "0");
-      const quantity = parseInt(state.editableFields.quantity, 10);
-      state.calculatedAmount = quantity * priceSold;
+      const quantity = parseFloat(state.editableFields.quantity);
+      const discount = parseFloat(state.editableFields.discount);
+      state.calculatedTotal = (quantity * priceSold) - discount;
     }
   });
 
-  // Handle form submission
-  const handleSubmit = $(() => {
-    // Perform actions like sending data to the backend or updating the database
-    console.log("Submitting data:", {
+// Handle form submission with a 4-second cooldown
+const handleSubmit = $(async () => {
+  if (state.isSubmitting) return; // Prevent multiple submissions
+
+  try {
+    state.isSubmitting = true; // Disable the button
+    state.submitTimer = 4; // Start the countdown from 4 seconds
+
+    // Convert quantity and discount to numbers
+    const numericQuantity = parseFloat(state.editableFields.quantity);
+    const numericDiscount = parseFloat(state.editableFields.discount);
+
+    // Ensure valid numbers (fallback to defaults if NaN)
+    const validatedQuantity = isNaN(numericQuantity) ? 1 : numericQuantity;
+    const validatedDiscount = isNaN(numericDiscount) ? 0 : numericDiscount;
+
+    // Prepare the data to send to the backend
+    const requestData = {
       ...state.query,
       ...state.editableFields,
-      calculatedAmount: state.calculatedAmount,
+      quantity: validatedQuantity, // Use validated quantity
+      discount: validatedDiscount, // Use validated discount
+      calculatedTotal: state.calculatedTotal,
+    };
+
+    // Send POST request to the backend
+    const response = await fetchWithLang("http://localhost:3000/get-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "sw", // Default language
+      },
+      body: JSON.stringify(requestData),
+      credentials: "include", // Include cookies or authentication tokens
     });
-    alert("Transaction submitted successfully!");
-  });
+
+    // Check if the response is successful
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // Parse the response (if needed)
+    const responseData = await response.json();
+
+    // Log success message
+    console.log("Transaction submitted successfully:", responseData);
+    state.modal = {
+      isOpen: true,
+      message: responseData.message || "Umefanikiwa",
+      isSuccess: true
+      
+    }
+  } catch (error) {
+    // Handle errors
+    console.error("Error submitting transaction:", error);
+    state.modal = {
+      isOpen: true,
+      message: "Tatizo limejitokeza",
+      isSuccess: false
+      
+    }  
+  } finally {
+    // Countdown timer logic
+    const interval = setInterval(() => {
+      state.submitTimer -= 1; // Decrement the timer
+      if (state.submitTimer <= 0) {
+        clearInterval(interval); // Stop the timer
+        state.isSubmitting = false; // Re-enable the button
+        state.submitTimer = 0; // Reset the timer
+      }
+    }, 1000);
+  }
+});
+
+const handleButtonClick = $((btn: string) => {
+  if (btn === "C") {
+    state.input = "";
+  } else if (btn === "=") {
+    try {
+      state.input = Function('"use strict"; return (' + state.input + ')')();
+    } catch {
+      state.input = "Error";
+    }
+  } else {
+    state.input += btn;
+  }
+});
+
 
   return (
     <div class="p-4 max-w-2xl mx-auto text-sm sm:text-base">
@@ -104,7 +194,71 @@ export default component$(() => {
                 </div>
               );
             })}
+
+                  {/* Calculator Button & Modal */}
+<div class="text-left mb-4">
+  <button
+    class="p-2 text-white rounded-full"
+    onClick$={() => (state.showCalculator = true)}
+  >
+    📱
+  </button>
+
+  {state.showCalculator && (
+    <div class="absolute inset-0 flex justify-evenly items-center bg-opacity-50 z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg w-80 relative border-2 border-b-blue-900">
+        <button
+          class="absolute top-2 right-2 text-gray-600 hover:text-red-600"
+          onClick$={() => (state.showCalculator = false)}
+        >
+          ✖
+        </button>
+
+        <input
+          type="text"
+          class="w-full p-2 text-right text-xl border rounded mb-4"
+          value={state.input}
+          disabled
+        />
+
+        <div class="grid grid-cols-4 gap-2">
+          {["7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", "C", "=", "+"].map(
+            (btn) => (
+              <button
+                key={btn}
+                class={`p-4 rounded text-xl ${
+                  btn === "C"
+                    ? "bg-red-500 text-white"
+                    : btn === "="
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick$={() => handleButtonClick(btn)}
+              >
+                {btn}
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
           </div>
+
+          <div class="relative inline-block group cursor-help">
+            <p class="text-green-600 underline">
+              ℹ️ Click here (Quantity)
+            </p>
+            <div class="absolute z-10 hidden group-hover:block bg-white border border-gray-300 text-sm text-gray-700 p-2 rounded-md shadow-md w-64 mt-2">
+              <p>🟢 <strong>Robo</strong> = 0.25</p>
+              <p>🟢 <strong>Nusu</strong> = 0.5</p>
+              <p>🟢 <strong>Robotatu</strong> = 0.75</p>
+              <p>🟢 <strong>Kilo na nusu</strong> = 1.5</p>
+            </div>
+          </div>
+
 
           {/* Editable fields */}
           <div class="border-t pt-4 grid sm:grid-cols-2 gap-4">
@@ -131,6 +285,7 @@ export default component$(() => {
               >
                 <option value="sales">Sales</option>
                 <option value="purchases">Purchases</option>
+                <option value="expenses">Expenses</option>
               </select>
             </div>
 
@@ -150,7 +305,7 @@ export default component$(() => {
 
             <div>
               <label class="block text-gray-600 font-medium mb-1">
-                Discount
+                Discount (%)
               </label>
               <input
                 type="number"
@@ -160,35 +315,62 @@ export default component$(() => {
               />
             </div>
 
-            <div class="sm:col-span-2">
-              <label class="block text-gray-600 font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                value={state.editableFields.description}
-                onInput$={(e) => handleChange(e, "description")}
-                rows={3}
-                placeholder="e.g. Home use, party order..."
-                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
-              ></textarea>
-            </div>
+            {/* Conditionally show description for "Expenses" */}
+            {state.editableFields.typeDetected === "expenses" && (
+              <div class="sm:col-span-2">
+                <label class="block text-gray-600 font-medium mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={state.editableFields.description}
+                  onInput$={(e) => handleChange(e, "description")}
+                  rows={3}
+                  placeholder="e.g. Home use, party order..."
+                  class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+                ></textarea>
+              </div>
+            )}
           </div>
 
-          {/* Display calculated amount */}
-          <div class="pt-4 text-blue-600 font-semibold text-sm">
-            💰 Total Amount: {state.calculatedAmount.toFixed(2)}{" "}
-            ({state.editableFields.quantity} × {state.query.priceSold})
+          {/* Display calculated total amount */}
+          <div class="pt-4 text-center">
+          <p class="text-2xl sm:text-3xl font-bold text-green-600">
+            💰 Total: {new Intl.NumberFormat('en-US').format(state.calculatedTotal)}/=
+          </p>
+            <p class="text-sm text-gray-500">
+              ({state.editableFields.quantity} × {state.query.priceSold} - {state.editableFields.discount})
+            </p>
           </div>
 
           {/* Submit button */}
-          <button
-            onClick$={handleSubmit}
-            class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300 ease-in-out"
-          >
-            Submit Transaction
-          </button>
+
+        <button
+          onClick$={handleSubmit}
+          disabled={state.isSubmitting} // Disable button during submission
+          class="mt-4 w-full bg-gray-800 text-white py-2 px-4 rounded hover:bg-gray-400 transition duration-300 ease-in-out"
+        >
+          {state.isSubmitting ? `Please wait (${state.submitTimer}s)` : "Submit Transaction"}
+        </button>
         </div>
       )}
+
+            {/* Modal Popup */}
+            {state.modal.isOpen && (
+        <div class="fixed inset-0 flex items-center justify-center bg-opacity-50 bg-neutral-500 z-50">
+          <div class="bg-white p-6 rounded shadow-lg text-center">
+            <p class={state.modal.isSuccess ? 'text-green-600' : 'text-red-600'}>
+              {state.modal.message}
+            </p>
+            <button
+              class="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+              onClick$={() => (state.modal.isOpen = false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 });
