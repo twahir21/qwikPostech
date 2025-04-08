@@ -40,14 +40,15 @@ export default component$(() => {
     const urlParams = new URLSearchParams(location.url.search);
     const params: Record<string, string> = {};
 
-  urlParams.forEach((value, key) => {
-    if (!["shopId", "userId", "productId"].includes(key)) {
-      params[key] = value;
-    }
-  });
+    urlParams.forEach((value, key) => {
+      if (key === "productId") {
+        state.productId = value; // Assign productId directly to state
+      } else if (!["shopId", "userId"].includes(key)) {
+        params[key] = value;
+      }
+    });
 
     state.query = params;
-    state.productId = params.productId || ""; // Explicitly store productId
     state.generatedAt = params.generatedAt || "Not provided"; // Store generatedAt with a fallback
     state.editableFields.quantity = params.quantity || "1";
     state.editableFields.saleType = params.saleType || "cash";
@@ -94,6 +95,17 @@ const handleSubmit = $(async () => {
     const validatedQuantity = isNaN(numericQuantity) ? 1 : numericQuantity;
     const validatedDiscount = isNaN(numericDiscount) ? 0 : numericDiscount;
 
+    // check product id
+    if (!state.productId || state.productId === "") {
+      state.modal = {
+        isOpen: true,
+        message: "Product ID is required!",
+        isSuccess: false
+      };
+      return;
+    }
+    
+
     // Prepare the data to send to the backend
     const requestData = {
       ...state.query,
@@ -103,8 +115,6 @@ const handleSubmit = $(async () => {
       productId: state.productId,
       calculatedTotal: state.calculatedTotal,
     };
-
-    console.log(requestData);
 
     // Send POST request to the backend
     const response = await fetchWithLang("http://localhost:3000/get-data", {
@@ -361,7 +371,7 @@ const handleButtonClick = $((btn: string) => {
 
 {/* Modal Popup */}
 {state.modal.isOpen && (
-  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full border border-gray-300">
       <div class="flex items-center justify-between mb-4">
         <h2 class={`text-lg font-semibold ${state.modal.isSuccess ? 'text-green-600' : 'text-red-600'}`}>
