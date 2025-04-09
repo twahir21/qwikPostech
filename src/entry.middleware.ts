@@ -15,7 +15,5 @@ export const onRequest: RequestHandler = ({ cookie, redirect, url }) => {
   if (!authToken) {
     console.log("No auth_token found. Redirecting to /auth");
     throw redirect(302, "/auth");
-  } else {
-    console.log("Auth token found:", authToken);
-  }
+  } 
 };

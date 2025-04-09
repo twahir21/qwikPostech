@@ -35,7 +35,33 @@ export default component$(() => {
       message: '',
       isSuccess: false,
     },
+    customerId: "",
     customers: [] as { id: string; name: string }[],
+  });
+
+  useVisibleTask$(() => {
+    fetch('http://localhost:3000/getCustomers', {
+      method: "GET",
+      credentials: "include", 
+      headers: {
+        "Accept-Language": "sw",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        state.customers = data.data; // Update state with fetched customers
+        console.log("Fetched Customers:", state.customers);
+
+      })
+      .catch(error => {
+        console.error("Error fetching customers:", error);
+      });
   });
 
   // Parse URL parameters and initialize state
@@ -122,6 +148,7 @@ const handleSubmit = $(async () => {
       priceSold: Number(state.query.priceSold),
       priceBought: Number(state.query.priceBought),
       supplierId: state.supplierId,
+      customerId: state.customerId,
       calculatedTotal: state.calculatedTotal,
     };
 
@@ -184,15 +211,6 @@ const handleButtonClick = $((btn: string) => {
   } else {
     state.input += btn;
   }
-});
-
-
-useVisibleTask$(() => {
-  fetch(`http://localhost:3000/customers`)
-    .then(res => res.json())
-    .then(data => {
-      state.customers = data;
-    });
 });
 
   
@@ -364,9 +382,29 @@ useVisibleTask$(() => {
               </div>
             )}
 
+            {/* Fetch Customers */}
             {state.editableFields.saleType === "debt" && (
               <div class="sm:col-span-2">
-                <p>Lists of customers</p>
+                <p class="text-gray-600 font-medium mb-2">Select Customer:</p>
+                {state.customers.length > 0 ? (
+                  <select
+                    value={state.customerId || ""} // Bind the selected value to state.customerId
+                    onChange$={(e) => {
+                      const target = e.target as HTMLSelectElement;
+                      state.customerId = target.value; // Update state.customerId with the selected value
+                    }}
+                    class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
+                  >
+                    <option value="">-- Select a customer --</option>
+                    {state.customers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.name} 
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p class="text-gray-500 italic">No customers available.</p>
+                )}
               </div>
             )}
           </div>
