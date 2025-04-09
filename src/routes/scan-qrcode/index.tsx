@@ -3,6 +3,7 @@ import {
   useTask$,
   useStore,
   $,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
 import { fetchWithLang } from "../function/fetchLang";
@@ -34,6 +35,7 @@ export default component$(() => {
       message: '',
       isSuccess: false,
     },
+    customers: [] as { id: string; name: string }[],
   });
 
   // Parse URL parameters and initialize state
@@ -185,6 +187,15 @@ const handleButtonClick = $((btn: string) => {
 });
 
 
+useVisibleTask$(() => {
+  fetch(`http://localhost:3000/customers`)
+    .then(res => res.json())
+    .then(data => {
+      state.customers = data;
+    });
+});
+
+  
   return (
     <div class="p-4 max-w-2xl mx-auto text-sm sm:text-base">
       <h1 class="text-xl sm:text-2xl font-bold mb-4 text-gray-800">
@@ -350,6 +361,12 @@ const handleButtonClick = $((btn: string) => {
                   placeholder="e.g. Home use, party order..."
                   class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300"
                 ></textarea>
+              </div>
+            )}
+
+            {state.editableFields.saleType === "debt" && (
+              <div class="sm:col-span-2">
+                <p>Lists of customers</p>
               </div>
             )}
           </div>

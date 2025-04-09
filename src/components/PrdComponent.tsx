@@ -51,6 +51,7 @@ export const CrudPrdComponent =  component$(() => {
 
 
       const json = await res.json();
+      console.log(json.data);
       if (!json.success) {
         throw new Error(json.message || 'Failed to fetch products');
       }
