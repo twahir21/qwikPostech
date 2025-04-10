@@ -95,13 +95,6 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
           state.modal = { isOpen: true, message: result.message || 'Tatizo limejitokeza', isSuccess: false };
         } else {
           state.modal = { isOpen: true, message: result.message || 'Umefanikiwa', isSuccess: true };
-          {
-            localStorage.setItem("username", state.username || "Guest");
-            window.location.href = "http://localhost:5173";
-
-            // set token to the cookie
-            document.cookie = `auth_token=${result.token}; path=/; max-age=604800`; // Expires in 7 days
-          }
           // ✅ Reset state after successful submission
           state.name = '';
           state.email = '';
@@ -111,6 +104,19 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
           state.errors = {};
           state.valid = {};
           state.showPassword = false; // Reset password visibility
+
+          // 🔄 Conditional redirect logic
+          if (state.isLogin) {
+            localStorage.setItem("username", state.username || "Guest");
+            // Set token cookie manually
+            document.cookie = `auth_token=${result.token}; path=/; max-age=604800`; // 7 days
+            window.location.href = "http://localhost:5173"; // Redirect to home
+          } else {
+            // After registration, redirect to login
+            setTimeout(() => {
+              state.isLogin = true; // Switch to login mode
+            }, 1000);
+          }
 
         }
       } catch (error) {
