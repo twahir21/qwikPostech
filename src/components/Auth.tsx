@@ -12,6 +12,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
     email: '',
     username: '',
     password: '',
+    phoneNumber: '', // New state for phone number
     showPassword: false,
     errors: {} as Record<string, string>,
     valid: {} as Record<string, boolean>,
@@ -44,6 +45,10 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
         isValid = value.trim().length >= 6;
         error = isValid ? '' : 'Nenosiri lazima liwe na herufi 6 au zaidi';
         break;
+      case 'phoneNumber': // Add validation for phone number
+        isValid = /^[0-9]{10,15}$/.test(value);  // Ensure it's a valid phone number
+        error = isValid ? '' : 'Nambari ya simu ni lazima iwe halali';
+        break;
     }
 
     state.errors[field] = error;
@@ -51,7 +56,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
   });
 
   // Update field values & validate
-  type StateField = keyof Pick<typeof state, "name" | "email" | "username" | "password">;
+  type StateField = keyof Pick<typeof state, "name" | "email" | "username" | "password" | "phoneNumber">;
 
   const handleInputChange = $((field: StateField, value: string) => {
     let sanitizedValue = value.trim();
@@ -72,7 +77,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
 
       try {
         const payload = {
-          ...(state.isLogin ? {} : { name: state.name }),
+          ...(state.isLogin ? {} : { name: state.name, phoneNumber: state.phoneNumber }),
           email: state.email,
           username: state.username,
           password: state.password,
@@ -102,6 +107,7 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
           state.email = '';
           state.username = '';
           state.password = '';
+          state.phoneNumber = '';  // Reset phone number
           state.errors = {};
           state.valid = {};
           state.showPassword = false; // Reset password visibility
@@ -183,6 +189,16 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
 
         {state.errors.password && <p class="text-red-500 text-sm">{state.errors.password}</p>}
         {state.valid.password && <p class="text-green-500 text-sm">✔ Sahihi</p>}
+
+        {/* Phone Number Field */}
+        {!state.isLogin && (
+          <>
+            <input class="w-full p-2 border rounded mb-2" type="text" placeholder="Nambari ya Simu" value={state.phoneNumber} 
+              onInput$={(e) => handleInputChange('phoneNumber', (e.target as HTMLInputElement).value)} />
+            {state.errors.phoneNumber && <p class="text-red-500 text-sm">{state.errors.phoneNumber}</p>}
+            {state.valid.phoneNumber && <p class="text-green-500 text-sm">✔ Sahihi</p>}
+          </>
+        )}
 
 
         {state.isLogin && <a href="#" class="text-gray-900 text-sm block text-right mb-2">Umesahau nenosiri?</a>}

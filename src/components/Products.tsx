@@ -66,7 +66,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
       const data = await res.json();
   
       if (!res.ok || !data.success) {
-        store.modal = { isOpen: true, message: data.message || 'Tatizo limejitokeza', isSuccess: false };
+        // store.modal = { isOpen: true, message: data.message || 'Tatizo limejitokeza', isSuccess: false };
         return []; // Return empty array on failure
       }
   
@@ -75,7 +75,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
     } catch (error) {
       store.category = [];
       console.error("Error: ", error);
-      store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+      // store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
       return []; // Return empty array in case of an error
     }
   });
@@ -99,7 +99,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
     } catch (error) {
       store.supplier = [];
       console.error("Error: ", error);
-      store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+      // store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
       return []; // Return empty array on error
     }
   });

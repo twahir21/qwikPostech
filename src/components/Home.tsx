@@ -43,15 +43,6 @@ export const HomeComponent = component$((props: { lang: string }) => {
           <p class="text-1xl font-semibold">Product B</p>
         </div>
 
-        {/* Most Buying User */}
-        <div class="bg-gradient-to-r from-pink-400 to-red-500 text-white shadow-lg p-4 rounded-lg">
-          <h3 class="text-lg font-medium flex items-center">
-            <span role="img" aria-label="user" class="pr-1.5">👤</span> 
-            <Translate lang={props.lang} keys={['most_buying_user']} />
-          </h3>
-          <p class="text-1xl font-semibold">John Doe</p>
-        </div>
-
         {/* Most Debt User */}
         <div class="bg-gradient-to-r from-gray-500 to-gray-700 text-white shadow-lg p-4 rounded-lg">
           <h3 class="text-lg font-medium flex items-center">
