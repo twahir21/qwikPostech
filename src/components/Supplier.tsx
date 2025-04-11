@@ -1,6 +1,7 @@
 import { component$, useStore, $ } from "@builder.io/qwik";
 import { fetchWithLang } from "~/routes/function/fetchLang";
 import { Translate } from "./Language";
+import { fetchCategories, fetchSuppliers, globalStore } from "~/routes/function/helpers";
 
 export const SupplierComponent = component$((props: {lang: string}) => {
   const formState = useStore({
@@ -74,6 +75,11 @@ export const SupplierComponent = component$((props: {lang: string}) => {
       });
       
       const supplierData = await supplierResponse.json();
+
+      await fetchSuppliers();
+      console.log("Tahir: ", globalStore.supplierData)
+      await fetchCategories ();
+
 
       formState.modal = {
         isOpen: true,

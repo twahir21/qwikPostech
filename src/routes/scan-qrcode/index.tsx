@@ -40,7 +40,7 @@ export default component$(() => {
   });
 
   useVisibleTask$(() => {
-    fetch('http://localhost:3000/getCustomers', {
+    fetchWithLang('http://localhost:3000/getCustomers', {
       method: "GET",
       credentials: "include", 
       headers: {

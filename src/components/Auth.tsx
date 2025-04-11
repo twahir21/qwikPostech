@@ -95,15 +95,6 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
           state.modal = { isOpen: true, message: result.message || 'Tatizo limejitokeza', isSuccess: false };
         } else {
           state.modal = { isOpen: true, message: result.message || 'Umefanikiwa', isSuccess: true };
-          // ✅ Reset state after successful submission
-          state.name = '';
-          state.email = '';
-          state.username = '';
-          state.password = '';
-          state.phoneNumber = '';  // Reset phone number
-          state.errors = {};
-          state.valid = {};
-          state.showPassword = false; // Reset password visibility
 
           // 🔄 Conditional redirect logic
           if (state.isLogin) {
@@ -118,6 +109,15 @@ export const AuthForm = component$<AuthFormProps>(({ isLogin }) => {
             }, 1000);
           }
 
+          // ✅ Reset state after successful submission
+          state.name = '';
+          state.email = '';
+          state.username = '';
+          state.password = '';
+          state.phoneNumber = '';  // Reset phone number
+          state.errors = {};
+          state.valid = {};
+          state.showPassword = false; // Reset password visibility
         }
       } catch (error) {
         console.error('Network error:', error);
