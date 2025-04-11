@@ -151,6 +151,8 @@ const handleSubmit = $(async () => {
       customerId: state.customerId,
       calculatedTotal: state.calculatedTotal,
     };
+    console.log(requestData)
+
 
     // Send POST request to the backend
     const response = await fetchWithLang("http://localhost:3000/get-data", {
@@ -162,6 +164,8 @@ const handleSubmit = $(async () => {
       body: JSON.stringify(requestData),
       credentials: "include", // Include cookies or authentication tokens
     });
+
+    console.log(response);
 
     // Check if the response is successful
     if (!response.ok) {

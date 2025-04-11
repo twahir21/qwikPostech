@@ -11,10 +11,12 @@ export const QrPdf = component$((props: { lang: string }) => {
       isSuccess: false,
     },
     isButtonDisabled: true,
+    trigger: 0,
   });
 
   // check if QrCode is needed
-  useResource$(async () => {
+  useResource$(async ({ track }) => {
+    track(() => store.trigger);
     try {
       const response = await fetchWithLang('http://localhost:3000/check-isQrCode', {
         method: 'GET',
@@ -91,6 +93,12 @@ export const QrPdf = component$((props: { lang: string }) => {
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
         <Translate lang={props.lang} keys={['step_3']} />
       </h1>
+      <button
+        class="flex items-center gap-2 text-blue-700 font-medium hover:underline pb-2"
+        onClick$={() => store.trigger++}
+      >
+        🔄 Refresh
+      </button>
       <button
         class={`bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500 ${
           store.isLoading || store.isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''

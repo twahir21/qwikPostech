@@ -63,6 +63,7 @@ export const SupplierComponent = component$((props: {lang: string}) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generalName: formState.category }),
         });
+        console.log(categoryResponse);
         await categoryResponse.json();
       }
 
@@ -82,7 +83,7 @@ export const SupplierComponent = component$((props: {lang: string}) => {
 
       formState.modal = {
         isOpen: true,
-        message: supplierData.success ? supplierData.message || "Umefanikiwa" : "Tatizo limejitokeza",
+        message: supplierData.success ? supplierData.message || "Umefanikiwa" : supplierData ||"Tatizo limejitokeza",
         isSuccess: supplierData.success,
       };
       
