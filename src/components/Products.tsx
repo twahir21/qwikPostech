@@ -158,7 +158,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
       const resData = await response.json();
   
       // Check response
-      if (!response.ok || !resData.success) { // Fix typo `successs`
+      if (!response.ok || !resData.success) { 
         store.modal = { isOpen: true, message: resData.message || 'Tatizo limejitokeza', isSuccess: false };
         return;
       }

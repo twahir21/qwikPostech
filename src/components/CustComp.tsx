@@ -232,7 +232,6 @@ export const CustomersCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              console.log('Updating customer:', selectedCustomer.value!.id);
               const res = await fetchWithLang(`http://localhost:3000/customers/${selectedCustomer.value!.id}`, {
                 method: 'PUT',
                 headers: {

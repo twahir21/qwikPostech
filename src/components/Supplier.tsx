@@ -63,7 +63,6 @@ export const SupplierComponent = component$((props: {lang: string}) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generalName: formState.category }),
         });
-        console.log(categoryResponse);
         await categoryResponse.json();
       }
 

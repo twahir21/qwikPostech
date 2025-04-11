@@ -51,7 +51,6 @@ export const CrudPrdComponent =  component$(() => {
 
 
       const json = await res.json();
-      console.log(json.data);
       if (!json.success) {
         throw new Error(json.message || 'Failed to fetch products');
       }
@@ -312,7 +311,6 @@ export const CrudPrdComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              console.log('Updating product:', selectedProduct.value!.id);
               const res = await fetchWithLang(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
                 method: 'PUT',
                 headers: {

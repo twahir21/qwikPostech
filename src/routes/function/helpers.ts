@@ -30,7 +30,6 @@ export const fetchSuppliers = async () => {
           company: supplier.company,
       }))
       : [];  // 
-      console.log("Supplier: ", globalStore.supplierData)
     } catch (error) {
       console.error("Fetch error:", error);
       return [];
@@ -52,7 +51,6 @@ export const fetchCategories = async () => {
         generalName: category.generalName,
     }))
     : [];  // 
-    console.log(globalStore.categoriesData)
     } catch (error) {
       console.error("Fetch error:", error);
       return [];

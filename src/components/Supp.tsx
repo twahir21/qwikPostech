@@ -56,7 +56,6 @@ export const SuppCrudComponent =  component$(() => {
       }
       products.value = json.data;
 
-      console.log(products.value);
       total.value = json.total;
     } catch (err) {
       console.error('Failed to fetch products:', err);
