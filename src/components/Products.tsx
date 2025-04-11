@@ -1,4 +1,4 @@
-import { component$, useStore, useResource$, $, useTask$ } from '@builder.io/qwik';
+import { component$, useStore, useResource$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 import { SupplierComponent } from './Supplier';
 import { Translate } from './Language';
@@ -67,7 +67,6 @@ export const ProductComponent = component$((props: {lang: string}) => {
     try {
       await fetchCategories(); // initial fetch
       store.category = globalStore.categoriesData;
-      console.log(globalStore.categoriesData)
       return globalStore.categoriesData
     } catch (error) {
       store.category = [];
@@ -77,29 +76,21 @@ export const ProductComponent = component$((props: {lang: string}) => {
     }
   });
 
-  useTask$(async ({ track }) => {
-    console.log(globalStore.refetchSupplier)
-    console.log("Refresh: ", store.refreshTrigger)
-    track(() => store.refreshTrigger); // Track refreshTrigger
+    // Fetch suppliers from backend with error handling
+    useResource$<any>(async ({ track }) => {
+      track(() => store.refreshTrigger); // Track refreshTrigger
+  
       try {
-        await fetchSuppliers(); // updates globalStore.supplierData
+        await fetchSuppliers(); // initial fetch
         store.supplier = globalStore.supplierData;
-  
-        console.log('Fetched supplier:', globalStore.supplierData);
-  
-        // reset trigger
-        globalStore.refetchSupplier = false;
+        return globalStore.supplierData;
       } catch (error) {
         store.supplier = [];
-        store.modal = {
-          isOpen: true,
-          message: 'Tatizo limejitokeza',
-          isSuccess: false,
-        };
+        console.error("Error: ", error);
+        store.modal = { isOpen: true, message: 'Tatizo limejitokeza', isSuccess: false };
+        return []; // Return empty array in case of an error
       }
-  });
-  
-  
+    });  
 
   // Handle input changes for the form
   const handleInputChange = $((field: keyof Store, value: string) => {
@@ -107,7 +98,8 @@ export const ProductComponent = component$((props: {lang: string}) => {
       const selectedCategory = store.category.find(cat => cat.id === value);
       if (selectedCategory) store.category = [selectedCategory]; // Ensure it's an array
     } else if (field === 'supplier') {
-      store.product['supplierId'] = value; // Save selected supplier ID
+      const selectedSupplier = store.supplier.find(sup => sup.id === value);
+      if (selectedSupplier) store.supplier = [selectedSupplier];
     }
     else {
       (store[field] as any) = value;
@@ -152,7 +144,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
         priceBought,
         unit: store.product.unit,
         categoryId: store.category[0]?.id, // Use ID instead of full object
-        supplierId: store.product.supplierId,
+        supplierId: store.supplier[0]?.id,
       };
     
       // Send data to backend

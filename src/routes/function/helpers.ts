@@ -13,7 +13,6 @@ interface suppTypesafe  {
 export const globalStore = {
     supplierData: [] as suppTypesafe[],
     categoriesData: [] as categTypesafe[],
-    refetchSupplier: false as boolean,
 }
 
 export const fetchSuppliers = async () => {
@@ -32,7 +31,6 @@ export const fetchSuppliers = async () => {
       }))
       : [];  // 
       console.log("Supplier: ", globalStore.supplierData)
-      console.log("Tracker: ", globalStore.refetchSupplier)
     } catch (error) {
       console.error("Fetch error:", error);
       return [];
