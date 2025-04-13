@@ -1,6 +1,7 @@
 import { Translate } from "./Language";
-import { component$, useStore, $, useResource$ } from '@builder.io/qwik';
+import { component$, useStore, $, useResource$, useContext } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
+import { RefetchContext } from "./context/refreshContext";
 
 export const QrPdf = component$((props: { lang: string }) => {
   const store = useStore({
@@ -11,12 +12,13 @@ export const QrPdf = component$((props: { lang: string }) => {
       isSuccess: false,
     },
     isButtonDisabled: true,
-    trigger: 0,
   });
+
+  const {qrCodeRefetch} = useContext(RefetchContext);
 
   // check if QrCode is needed
   useResource$(async ({ track }) => {
-    track(() => store.trigger);
+    track(() => qrCodeRefetch.value);
     try {
       const response = await fetchWithLang('http://localhost:3000/check-isQrCode', {
         method: 'GET',
@@ -35,6 +37,7 @@ export const QrPdf = component$((props: { lang: string }) => {
       else {
         store.isButtonDisabled = true; // Disable the button if no QR codes are needed
       }
+      qrCodeRefetch.value = false;
     } catch (error) {
       console.log("Err", error);
     }
@@ -94,16 +97,16 @@ export const QrPdf = component$((props: { lang: string }) => {
         <Translate lang={props.lang} keys={['step_3']} />
       </h1>
       <button
-        class="flex items-center gap-2 text-blue-700 font-medium hover:underline pb-2"
-        onClick$={() => store.trigger++}
-      >
-        🔄 Refresh
-      </button>
-      <button
         class={`bg-gray-700 text-white px-4 py-2 rounded mt-4 w-full hover:bg-gray-500 ${
           store.isLoading || store.isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''
         }`}
-        onClick$={generateQRCodes}
+        onClick$={async () => {
+          store.isButtonDisabled = true; // Optimistically disable the button
+          await generateQRCodes();       // Run QR code generation
+          qrCodeRefetch.value = true;    // Trigger resource refetch to double-check
+        }}
+        
+        
         disabled={store.isLoading || store.isButtonDisabled}                
       >
         {store.isLoading ? (

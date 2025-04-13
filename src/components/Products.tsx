@@ -59,7 +59,11 @@ export const ProductComponent = component$((props: {lang: string}) => {
     },
   });
 
- const { supplierRefetch, categoryRefetch } = useContext(RefetchContext);
+ const { 
+         supplierRefetch, 
+         categoryRefetch, 
+         qrCodeRefetch     
+  } = useContext(RefetchContext);
 
   // Fetch categories from backend with error handling
   useResource$<any>(async ({ track }) => {
@@ -111,8 +115,6 @@ export const ProductComponent = component$((props: {lang: string}) => {
     }
   });
   
-  
-
   // Handle nested input changes for product and purchases
   const handleNestedInputChange = $((field: keyof Store, key: string, value: string) => {
     (store[field] as any)[key] = value;
@@ -153,13 +155,15 @@ export const ProductComponent = component$((props: {lang: string}) => {
       };
     
       // Send data to backend
+
       const response = await fetchWithLang('http://localhost:3000/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productPayload),
         credentials: 'include',
       });
-  
+
+      qrCodeRefetch.value = true;
       const resData = await response.json();
   
       // Check response
@@ -167,13 +171,6 @@ export const ProductComponent = component$((props: {lang: string}) => {
         store.modal = { isOpen: true, message: resData.message || 'Tatizo limejitokeza', isSuccess: false };
         return;
       }
-  
-  
-      // Reset form
-      store.category = [];
-      store.supplier = [];
-      store.product = { name: '', priceSold: '', stock: '', minStock: '', unit: '' };
-      store.purchases = { priceBought: '' };
   
       store.modal = { isOpen: true, message: resData.message || 'Umefanikiwa', isSuccess: true };
   
