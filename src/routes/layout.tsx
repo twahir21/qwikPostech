@@ -1,5 +1,6 @@
-import { component$, Slot } from "@builder.io/qwik";
+import { component$, Slot, useContextProvider, useSignal } from "@builder.io/qwik";
 import type { RequestHandler } from "@builder.io/qwik-city";
+import { RefetchContext } from "~/components/context/refreshContext";
 
 export const onGet: RequestHandler = async ({ cacheControl, cookie, redirect, url }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -30,5 +31,21 @@ export const onGet: RequestHandler = async ({ cacheControl, cookie, redirect, ur
 };
 
 export default component$(() => {
+  const saleRefetch = useSignal(false);
+  const productRefetch = useSignal(false);
+  const customerRefetch = useSignal(false);
+  const qrCodeRefetch =  useSignal(false);
+  const supplierRefetch = useSignal(false);
+  const categoryRefetch = useSignal(false);
+
+  // Provide all signals as a grouped context
+  useContextProvider(RefetchContext, {
+    saleRefetch,
+    productRefetch,
+    customerRefetch,
+    qrCodeRefetch,
+    supplierRefetch,
+    categoryRefetch
+  });
   return <Slot />;
 });

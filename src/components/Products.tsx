@@ -1,9 +1,10 @@
-import { component$, useStore, useResource$, $ } from '@builder.io/qwik';
+import { component$, useStore, useResource$, $, useContext } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 import { SupplierComponent } from './Supplier';
 import { Translate } from './Language';
 import { QrPdf } from './QRPdf';
 import { fetchCategories, fetchSuppliers, globalStore } from '~/routes/function/helpers';
+import { RefetchContext } from './context/refreshContext';
 
 interface Product {
   name: string;
@@ -35,7 +36,6 @@ interface Store {
     message: string;
     isSuccess: boolean;
   };
-  refreshTrigger: number,
 }
 
 export const ProductComponent = component$((props: {lang: string}) => {
@@ -57,16 +57,19 @@ export const ProductComponent = component$((props: {lang: string}) => {
       message: '' as string,
       isSuccess: false,
     },
-    refreshTrigger: 0,
   });
+
+ const { supplierRefetch, categoryRefetch } = useContext(RefetchContext);
 
   // Fetch categories from backend with error handling
   useResource$<any>(async ({ track }) => {
-    track(() => store.refreshTrigger); // Track refreshTrigger
+    track(() => categoryRefetch.value);
+
 
     try {
       await fetchCategories(); // initial fetch
       store.category = globalStore.categoriesData;
+      categoryRefetch.value = false;
       return globalStore.categoriesData
     } catch (error) {
       store.category = [];
@@ -78,11 +81,13 @@ export const ProductComponent = component$((props: {lang: string}) => {
 
     // Fetch suppliers from backend with error handling
     useResource$<any>(async ({ track }) => {
-      track(() => store.refreshTrigger); // Track refreshTrigger
+      track(() => supplierRefetch.value);
   
       try {
         await fetchSuppliers(); // initial fetch
         store.supplier = globalStore.supplierData;
+        // ✅ Reset the flag immediately after
+        supplierRefetch.value = false;
         return globalStore.supplierData;
       } catch (error) {
         store.supplier = [];
@@ -192,12 +197,7 @@ export const ProductComponent = component$((props: {lang: string}) => {
         <h2 class="text-2xl font-bold mb-4">
           <Translate lang={props.lang} keys={['addPrd']} />
         </h2>
-      <button
-        class="flex items-center gap-2 text-blue-700 font-medium hover:underline pb-2"
-        onClick$={() => store.refreshTrigger++}
-      >
-        🔄 Refresh
-      </button>
+
         <div class="grid grid-cols-2 gap-4">
           {/* Category Dropdown */}
           <select

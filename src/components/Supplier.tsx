@@ -1,7 +1,7 @@
-import { component$, useStore, $ } from "@builder.io/qwik";
+import { component$, useStore, $, useContext } from "@builder.io/qwik";
 import { fetchWithLang } from "~/routes/function/fetchLang";
 import { Translate } from "./Language";
-import { fetchCategories, fetchSuppliers } from "~/routes/function/helpers";
+import { RefetchContext } from "./context/refreshContext";
 
 export const SupplierComponent = component$((props: {lang: string}) => {
   const formState = useStore({
@@ -22,6 +22,10 @@ export const SupplierComponent = component$((props: {lang: string}) => {
       isSuccess: false,
     }
   });
+  const { supplierRefetch }  = useContext(RefetchContext);
+  const { categoryRefetch }  = useContext(RefetchContext)
+
+
 
   // Validation Function
 
@@ -63,6 +67,7 @@ export const SupplierComponent = component$((props: {lang: string}) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generalName: formState.category }),
         });
+        categoryRefetch.value = true;
         await categoryResponse.json();
       }
 
@@ -73,12 +78,9 @@ export const SupplierComponent = component$((props: {lang: string}) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ company: formState.name.trim().toLowerCase(), contact: formState.contact.trim() }),
       });
-      
+      supplierRefetch.value = true;
+
       const supplierData = await supplierResponse.json();
-
-      await fetchSuppliers();
-      await fetchCategories ();
-
 
       formState.modal = {
         isOpen: true,
