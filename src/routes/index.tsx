@@ -1,4 +1,4 @@
-import { component$, useStore, $, useOnWindow } from "@builder.io/qwik";
+import { component$, useStore, $, useTask$ } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
@@ -116,28 +116,32 @@ export default component$(() => {
     return translation.replace("{username}", store.username);
   };
 
-
-  useOnWindow('qvisible', $(() => {
-    const savedLanguage = localStorage.getItem("selectedLanguage");
-    if (savedLanguage) {
-      store.selectedLanguage = savedLanguage;
+  // Load selected language from localStorage when component is visible
+  useTask$(() => {
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem("selectedLanguage");
+      if (savedLanguage) {
+        store.selectedLanguage = savedLanguage;
+      }
     }
-  }));
+  });
 
-  // Update username from localStorage when the component becomes visible
-  useOnWindow('qvisible', $(() => {
+    // Update username from localStorage when the component becomes visible
+  useTask$(() => {
+    if (typeof window !== "undefined"){
     const username = localStorage.getItem("username") || "Guest";
     
-    // Utility function to capitalize the first letter of each word
-  const capitalizeWords = (username: string) => {
-    return username
-      .trim() // Remove leading/trailing spaces
-      .split(' ') // Split by space to handle multi-word names
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter of each word
-      .join(' '); // Rejoin words with a space
-  };
-  store.username = capitalizeWords(username);
-  }))
+      // Utility function to capitalize the first letter of each word
+    const capitalizeWords = (username: string) => {
+      return username
+        .trim() // Remove leading/trailing spaces
+        .split(' ') // Split by space to handle multi-word names
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize first letter of each word
+        .join(' '); // Rejoin words with a space
+    };
+    store.username = capitalizeWords(username);
+  }
+  });  
   
   // Logout function
   const navigateLogout = useNavigate();
