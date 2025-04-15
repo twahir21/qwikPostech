@@ -1,4 +1,4 @@
-import { component$, useStore, $, useTask$ } from "@builder.io/qwik";
+import { component$, useStore, $, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
 import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
@@ -117,20 +117,16 @@ export default component$(() => {
   };
 
   // Load selected language from localStorage when component is visible
-  useTask$(() => {
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem("selectedLanguage");
-      if (savedLanguage) {
-        store.selectedLanguage = savedLanguage;
-      }
+  useVisibleTask$(() => {
+    const savedLanguage = localStorage.getItem("selectedLanguage");
+    if (savedLanguage) {
+      store.selectedLanguage = savedLanguage;
     }
   });
 
     // Update username from localStorage when the component becomes visible
-  useTask$(() => {
-    if (typeof window !== "undefined"){
+  useVisibleTask$(() => {
     const username = localStorage.getItem("username") || "Guest";
-    
       // Utility function to capitalize the first letter of each word
     const capitalizeWords = (username: string) => {
       return username
@@ -140,7 +136,6 @@ export default component$(() => {
         .join(' '); // Rejoin words with a space
     };
     store.username = capitalizeWords(username);
-  }
   });  
   
   // Logout function
