@@ -10,7 +10,7 @@ interface Product {
   name: string;
   priceSold: string;
   stock: string;
-  minStock: string;
+  minStock: string;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
   unit: string;
   categoryId?: string;
   supplierId?: string;

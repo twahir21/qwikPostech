@@ -1,6 +1,7 @@
-import { component$, Slot, useContextProvider, useSignal } from "@builder.io/qwik";
+import { component$, Slot, useContextProvider, useSignal, useStore } from "@builder.io/qwik";
 import type { RequestHandler } from "@builder.io/qwik-city";
 import { RefetchContext } from "~/components/context/refreshContext";
+import { globalStoreContext, globalStoreTypes } from "~/components/context/store/globalStore";
 
 export const onGet: RequestHandler = async ({ cacheControl, cookie, redirect, url }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -47,5 +48,15 @@ export default component$(() => {
     supplierRefetch,
     categoryRefetch
   });
+
+  // globalStore
+const globalStore = useStore<globalStoreTypes>({
+  profitPerProduct: [] // This is an array, matching the interface
+});
+
+// Provide the store using the context provider
+useContextProvider(globalStoreContext, globalStore);
+
+
   return <Slot />;
 });

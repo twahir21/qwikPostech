@@ -1,4 +1,4 @@
-import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
+import { component$, useStore, useVisibleTask$ } from "@builder.io/qwik";
 import { Translate } from "./Language";  // Make sure this is the correct path
 import { RecentProductsTable } from "./Recent";
 import { Graph } from "./Graph";
@@ -6,33 +6,38 @@ import { fetchWithLang } from "~/routes/function/fetchLang";
 
 export const HomeComponent = component$((props: { lang: string }) => {
 
-  const analyticsData = useSignal<string>("Loading...");
-  const errorMessage = useSignal<string | null>(null);
-  
+  const analyticsStore = useStore({
+    profit: "0" as string,
+    sales: "0" as string,
+    expenses: "0" as string,
+    purchases: "0" as string,
+    profitableProductname: '' as string,
+    profitableProductProfit: '' as string
+  })
 
-  useVisibleTask$(async () => {
-    try {
-      const response = await fetchWithLang("http://localhost:3000/analytics", {
-        method: "GET",
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
+  useVisibleTask$(async() => {
+    const res = await fetchWithLang("http://localhost:3000/analytics", {
+      credentials: 'include'
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch analytics");
-      }
-
-      const data = await response.json();
-      console.log('Analytics data:', data);
-      analyticsData.value = JSON.stringify(data, null, 2); // Pretty-print JSON
-
-    } catch (error: any) {
-      console.error('Error fetching analytics:', error);
-      errorMessage.value = error.message;
+    if (!res.ok) {
+      throw new Error("Invalid request")
     }
-  });
-  
+    const data = await res.json();
 
+    // assign data to the store and format to be money
+    analyticsStore.profit = new Intl.NumberFormat().format(data.netProfit.netProfit);
+    analyticsStore.purchases = new Intl.NumberFormat().format(data.netProfit.totalPurchases);
+    analyticsStore.sales = new Intl.NumberFormat().format(data.netProfit.totalSales);
+    analyticsStore.expenses = new Intl.NumberFormat().format(data.netProfit.totalExpenses);
+
+    // most profitable product
+    analyticsStore.profitableProductname = data.highestProfitProduct.productname;
+    analyticsStore.profitableProductProfit = new Intl.NumberFormat().format(data.highestProfitProduct.profit);
+
+
+    console.log("Home req: ", data)
+  })
   return (
     <>
       <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -42,7 +47,7 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="profit" class="pr-1.5">💵</span> 
             <Translate lang={props.lang} keys={['total_profit']} />
           </h3>
-          <p class="text-1xl font-bold">$12,500</p>
+          <p class="text-1xl font-bold">{analyticsStore.profit}/=</p>
         </div>
 
         {/* Total Sales */}
@@ -51,7 +56,16 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="sales" class="pr-1.5">📈</span> 
             <Translate lang={props.lang} keys={['total_sales']} />
           </h3>
-          <p class="text-1xl font-bold">$45,000</p>
+          <p class="text-1xl font-bold">{analyticsStore.sales}/=</p>
+        </div>
+
+        {/* Total Expenses */}
+        <div class="bg-gradient-to-r from-indigo-400 to-blue-500 text-white shadow-lg p-4 rounded-lg">
+          <h3 class="text-lg font-medium flex items-center">
+            <span role="img" aria-label="expenses" class="pr-1.5">💸</span> 
+            <Translate lang={props.lang} keys={['total_expenses']} />
+          </h3>
+          <p class="text-1xl font-semibold">{analyticsStore.expenses}/=</p>
         </div>
 
         {/* Most Profitable Product */}
@@ -60,7 +74,7 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="product" class="pr-1.5">🛒</span> 
             <Translate lang={props.lang} keys={['most_profitable_product']} />
           </h3>
-          <p class="text-1xl font-semibold">Product A</p>
+          <p class="text-1xl font-semibold">{analyticsStore.profitableProductname}, ( {analyticsStore.profitableProductProfit}/=)</p>
         </div>
 
         {/* Most Sold Product */}
@@ -97,15 +111,6 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <Translate lang={props.lang} keys={['low_stock']} />
           </h3>
           <p class="text-1xl font-semibold">Product X</p>
-        </div>
-
-        {/* Total Expenses */}
-        <div class="bg-gradient-to-r from-indigo-400 to-blue-500 text-white shadow-lg p-4 rounded-lg">
-          <h3 class="text-lg font-medium flex items-center">
-            <span role="img" aria-label="expenses" class="pr-1.5">💸</span> 
-            <Translate lang={props.lang} keys={['total_expenses']} />
-          </h3>
-          <p class="text-1xl font-semibold">$7,000</p>
         </div>
 
         {/* Total Return */}
@@ -146,16 +151,6 @@ export const HomeComponent = component$((props: { lang: string }) => {
       </div>
       <Graph lang={props.lang} />
       <RecentProductsTable lang={props.lang}/>
-      <div class="max-w-3xl mx-auto mt-6 p-4 bg-gray-100 rounded shadow">
-      <h2 class="text-xl font-semibold mb-2">📊 Analytics Result</h2>
-      {errorMessage.value ? (
-        <p class="text-red-600">Error: {errorMessage.value}</p>
-      ) : (
-        <pre class="bg-black text-green-400 p-4 rounded overflow-auto text-sm whitespace-pre-wrap">
-          <code>{analyticsData.value}</code>
-        </pre>
-      )}
-    </div>
     </>
   );
 });
