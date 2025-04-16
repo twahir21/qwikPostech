@@ -12,7 +12,18 @@ export const HomeComponent = component$((props: { lang: string }) => {
     expenses: "0" as string,
     purchases: "0" as string,
     profitableProductname: '' as string,
-    profitableProductProfit: '' as string
+    profitableProductProfit: '' as string,
+    mostFreqPrd: '' as string,
+    mostFreqPrdquantity: '' as string,
+    mostPrdQuantity: '' as string,
+    mostPrdQuantitytimes: '' as string,
+    longDebt: "" as string,
+    amount: '' as string,
+    mostDebt: '' as string,
+    amountDebt: '' as string,
+    daysDebt: '' as string,
+    lowestPrdName: '' as string,
+    lowestPrdStock: 0 as number
   })
 
   useVisibleTask$(async() => {
@@ -35,7 +46,56 @@ export const HomeComponent = component$((props: { lang: string }) => {
     analyticsStore.profitableProductname = data.highestProfitProduct.productname;
     analyticsStore.profitableProductProfit = new Intl.NumberFormat().format(data.highestProfitProduct.profit);
 
+    // most sold
+    analyticsStore.mostPrdQuantity = data.mostSoldProductByQuantity.productname;
+    analyticsStore.mostPrdQuantitytimes = data.mostSoldProductByQuantity.totalquantitysold;
+    analyticsStore.mostFreqPrd = data.mostFrequentProduct.productname;
+    analyticsStore.mostFreqPrdquantity = data.mostFrequentProduct.timessold;
 
+    // most debt user
+    analyticsStore.longDebt = data.longTermDebtUser.name;
+    analyticsStore.amount = new Intl.NumberFormat().format(data.longTermDebtUser.remainingAmount);
+
+    analyticsStore.mostDebt = data.mostDebtUser.name;
+    analyticsStore.amountDebt = new Intl.NumberFormat().format(data.mostDebtUser.remainingAmount);
+
+    analyticsStore.daysDebt = data.daysSinceDebt;
+
+    // lowest product
+    analyticsStore.lowestPrdName = data.lowestProduct[0].name;
+    analyticsStore.lowestPrdStock = data.lowestProduct[0].stock;
+
+    // restructure and obtain netSales
+    type DaySales = {
+      day: string;
+      sales: string;
+    };
+    
+    type DayExpenses = {
+      day: string;
+      expenses: string;
+    };
+
+    const salesByDay: DaySales[] = data.salesByDay; 
+
+    const expensesByDay: DayExpenses[] = data.expensesByDay;
+
+
+    // Convert to a map for faster lookup
+    const expensesMap: Record<string, number> = Object.fromEntries(
+      expensesByDay.map((e: DayExpenses): [string, number] => [e.day, parseInt(e.expenses)])
+    );
+
+    // Merge and calculate net sales
+    const netSales = salesByDay.map(({ day, sales }: DaySales) => {
+      const salesAmount = parseInt(sales);
+      const expenseAmount = expensesMap[day] || 0;
+      return {
+        day,
+        netSales: salesAmount - expenseAmount
+      };
+    });
+    console.log("Net sales:", netSales)
     console.log("Home req: ", data)
   })
   return (
@@ -83,7 +143,8 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="sold" class="pr-1.5">🔥</span> 
             <Translate lang={props.lang} keys={['most_sold_product']} />
           </h3>
-          <p class="text-1xl font-semibold">Product B</p>
+          <p class="text-1xl font-semibold">Quantity: {analyticsStore.mostPrdQuantity} - ({analyticsStore.mostPrdQuantitytimes} units)</p>
+          <p class="text-1xl font-semibold">Frequent: {analyticsStore.mostFreqPrd} - ({analyticsStore.mostFreqPrdquantity} times)</p>
         </div>
 
         {/* Most Debt User */}
@@ -92,7 +153,7 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="debt" class="pr-1.5">💳</span> 
             <Translate lang={props.lang} keys={['most_debt_user']} />
           </h3>
-          <p class="text-1xl font-semibold">Jane Smith</p>
+          <p class="text-1xl font-semibold">{analyticsStore.mostDebt} - ({analyticsStore.amountDebt}/=)</p>
         </div>
 
         {/* Long Debt User */}
@@ -101,7 +162,8 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="long-debt" class="pr-1.5">⏳</span> 
             <Translate lang={props.lang} keys={['long_debt_user']} />
           </h3>
-          <p class="text-1xl font-semibold">Alice Johnson <span class="text-sm text-gray-200">(Last payment: 2 months ago)</span></p>
+          <p class="text-1xl font-semibold">{analyticsStore.longDebt} - ({analyticsStore.amount}/=) </p>
+          <p class="text-sm text-gray-100 italic">(Last payment: {analyticsStore.daysDebt})</p>
         </div>
 
         {/* Low Stock */}
@@ -110,35 +172,35 @@ export const HomeComponent = component$((props: { lang: string }) => {
             <span role="img" aria-label="low-stock" class="pr-1.5">⚠️</span> 
             <Translate lang={props.lang} keys={['low_stock']} />
           </h3>
-          <p class="text-1xl font-semibold">Product X</p>
+          <p class="text-1xl font-semibold">{analyticsStore.lowestPrdName} - ({ analyticsStore.lowestPrdStock } units )</p>
         </div>
 
         {/* Total Return */}
-        <div class="bg-gradient-to-r from-pink-500 to-pink-700 text-white shadow-lg p-4 rounded-lg">
+        {/* <div class="bg-gradient-to-r from-pink-500 to-pink-700 text-white shadow-lg p-4 rounded-lg">
           <h3 class="text-lg font-medium flex items-center">
             <span role="img" aria-label="return" class="pr-1.5">🔄</span> 
             <Translate lang={props.lang} keys={['total_return']} />
           </h3>
           <p class="text-1xl font-semibold">$1,200</p>
-        </div>
+        </div> */}
 
         {/* Top Asked Products */}
-        <div class="bg-gradient-to-r from-yellow-300 to-yellow-500 text-white shadow-lg p-4 rounded-lg">
+        {/* <div class="bg-gradient-to-r from-yellow-300 to-yellow-500 text-white shadow-lg p-4 rounded-lg">
           <h3 class="text-lg font-medium flex items-center">
             <span role="img" aria-label="asked-product" class="pr-1.5">❓</span> 
             <Translate lang={props.lang} keys={['top_asked_products']} />
           </h3>
           <p class="text-1xl font-semibold">Product Y</p>
-        </div>
+        </div> */}
 
         {/* Total Expired Products */}
-        <div class="bg-gradient-to-r from-gray-500 to-gray-700 text-white shadow-lg p-4 rounded-lg">
+        {/* <div class="bg-gradient-to-r from-gray-500 to-gray-700 text-white shadow-lg p-4 rounded-lg">
           <h3 class="text-lg font-medium flex items-center">
             <span role="img" aria-label="expired" class="pr-1.5">📅</span> 
             <Translate lang={props.lang} keys={['total_expired_products']} />
           </h3>
-          <p class="text-1xl font-semibold">5</p>
-        </div>
+          <p class="text-1xl font-semibold">0</p>
+        </div> */}
 
         {/* Remained Time for SaaS (Countdown) */}
         <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg p-4 rounded-lg">

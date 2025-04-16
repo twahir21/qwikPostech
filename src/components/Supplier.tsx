@@ -22,8 +22,7 @@ export const SupplierComponent = component$((props: {lang: string}) => {
       isSuccess: false,
     }
   });
-  const { supplierRefetch }  = useContext(RefetchContext);
-  const { categoryRefetch }  = useContext(RefetchContext)
+  const { supplierRefetch, categoryRefetch }  = useContext(RefetchContext);
 
 
 
@@ -79,6 +78,8 @@ export const SupplierComponent = component$((props: {lang: string}) => {
         body: JSON.stringify({ company: formState.name.trim().toLowerCase(), contact: formState.contact.trim() }),
       });
       supplierRefetch.value = true;
+      categoryRefetch.value = true;
+
 
       const supplierData = await supplierResponse.json();
 

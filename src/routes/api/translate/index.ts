@@ -67,7 +67,7 @@ const translations: Record<string, Translation> = {
     total_expenses: "Gharama jumla",
     total_return: "Kurudi jumla",
     top_asked_products: "Bidhaa zinazoulizwa sana",
-    total_expired_products: "Bidhaa zilizokwisha",
+    total_expired_products: "Bidhaa zilizokwisha muda wake",
     saas_subscription: "Usajili wa SaaS",
     product: "Bidhaa",
     price: "Bei",
