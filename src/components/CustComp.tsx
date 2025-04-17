@@ -1,5 +1,6 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
+import { Translate } from './Language';
 
 interface Customer {
   id: string;
@@ -8,8 +9,8 @@ interface Customer {
   createdAt: string;
 }
 
-export const CustomersCrudComponent =  component$(() => {
-  const products = useSignal<Customer[]>([]);
+export const CustomersCrudComponent =  component$((props: {lang: string }) => {
+  const customer = useSignal<Customer[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
   const currentPage = useSignal(1);
@@ -20,7 +21,7 @@ export const CustomersCrudComponent =  component$(() => {
   const isDeleting = useSignal(false);
 
 
-  const fetchProducts = $(async () => {
+  const fetchCustomers = $(async () => {
     isLoading.value = true;
     try {
       const res = await fetchWithLang(
@@ -36,19 +37,19 @@ export const CustomersCrudComponent =  component$(() => {
 
       if (!res.ok) {
         const text = await res.text(); // fallback for non-JSON errors
-        throw new Error(`Failed to fetch products: ${text}`);
+        throw new Error(`Imeshindwa kujibu kuhusu wateja: ${text}`);
       }
 
 
       const json = await res.json();
       if (!json.success) {
-        throw new Error(json.message || 'Failed to fetch products');
+        throw new Error(json.message || 'Imeshindwa kuleta wateja kutoka kwenye seva');
       }
-      products.value = json.data;
+      customer.value = json.data;
 
       total.value = json.total;
     } catch (err) {
-      console.error('Failed to fetch products:', err);
+      console.error('Imeshindwa kuleta mteja:', err);
     } finally {
       isLoading.value = false;
     }
@@ -57,19 +58,19 @@ export const CustomersCrudComponent =  component$(() => {
   useTask$(({ track }) => {
     track(() => search.value);
     track(() => currentPage.value);
-    fetchProducts();
+    fetchCustomers();
   });
 
   const totalPages = () => Math.ceil(total.value / perPage);
 
   const editCustomer = $((customer: Customer) => {
-    selectedCustomer.value = { ...customer }; // Prepopulate the form with product data
+    selectedCustomer.value = { ...customer }; // Prepopulate the form with customers data
     isEditing.value = true;
   });
   
-  const deleteProduct = $(async (productId: string) => {
+  const deleteCustomers = $(async (customerId: string) => {
     try {
-      const res = await fetchWithLang(`http://localhost:3000/products/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/customers/${customerId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -79,13 +80,13 @@ export const CustomersCrudComponent =  component$(() => {
   
       if (!res.ok) {
         const text = await res.text(); // Fallback for non-JSON errors
-        throw new Error(`Failed to delete product: ${text}`);
+        throw new Error(`Imeshindwa kufuta mteja: ${text}`);
       }
   
-      // If deletion is successful, remove the product from the list
-      products.value = products.value.filter(product => product.id !== productId);
+      // If deletion is successful, remove the customer from the list
+      customer.value = customer.value.filter(customer => customer.id !== customerId);
     } catch (err) {
-      console.error('Failed to delete product:', err);
+      console.error('Imeshindwa kufika kwa seva za mteja: ', err);
     } finally {
       isDeleting.value = false;
     }
@@ -94,12 +95,15 @@ export const CustomersCrudComponent =  component$(() => {
 
   return (
     <div class="p-4 max-w-5xl mx-auto">
-      <h1 class="text-xl font-bold mb-4 text-center">📦 Products</h1>
+      <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
+        <Translate lang={props.lang} keys={['step_2']} /> 
+      </h1>
+      <h1 class="text-xl font-bold mb-4 text-center">🧑‍💼 Customers</h1>
 
       <input
         class="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         type="text"
-        placeholder="Search product name..."
+        placeholder="Search Customer name..."
         bind:value={search}
       />
 
@@ -120,7 +124,7 @@ export const CustomersCrudComponent =  component$(() => {
                   Loading...
                 </td>
               </tr>
-            ) : products.value.length === 0 ? (
+            ) : customer.value.length === 0 ? (
               <tr>
                 <td colSpan={7} class="p-4 text-center text-gray-500">
                 Hakuna mteja yoyote, msajili kwanza ....
@@ -128,11 +132,11 @@ export const CustomersCrudComponent =  component$(() => {
               </tr>
               )
              : (
-              products.value.map((customer) => (
+              customer.value.map((customer) => (
                 <tr key={customer.id} class="border-b border-gray-200">
                   <td class="p-3">{customer.name}</td>
                   <td class="p-3"> {customer.contact} </td>
-                  <td class="p-3 space-x-2">
+                  <div class="p-3 space-x-2">
                     <button class="text-blue-600 hover:underline" onClick$={() => editCustomer(customer)}>
                         Edit
                     </button>
@@ -145,7 +149,7 @@ export const CustomersCrudComponent =  component$(() => {
                     >
                         Delete
                     </button>
-                    </td>
+                    </div>
 
                 </tr>
               ))
@@ -156,7 +160,7 @@ export const CustomersCrudComponent =  component$(() => {
 
       {/* Mobile Cards */}
       <div class="sm:hidden space-y-4">
-        {products.value.map((customer) => (
+        {customer.value.map((customer) => (
           <div key={customer.id} class="border rounded-lg p-3 bg-white shadow-sm">
             <div class="font-semibold">{customer.name}</div>
             <div class="text-sm">Price Sold: Tsh {customer.contact}</div>
@@ -181,9 +185,11 @@ export const CustomersCrudComponent =  component$(() => {
       {/* Pagination */}
       <div class="mt-6 flex justify-between items-center">
         <button
-          onClick$={() => currentPage.value--}
-          disabled={currentPage.value === 1}
-          class="px-4 py-2 bg-gray-200 text-sm rounded disabled:opacity-50"
+        onClick$={() => {
+          if (currentPage.value > 1) currentPage.value--;
+        }}          
+        disabled={currentPage.value === 1}
+        class="px-4 py-2 bg-gray-200 text-sm rounded disabled:opacity-50"
         >
           Previous
         </button>
@@ -214,8 +220,8 @@ export const CustomersCrudComponent =  component$(() => {
         />
       </div>
       <div class="mt-4">
-        <label class="block text-sm">PriceSold</label>
-        <input
+      <label class="block text-sm">Mawasiliano: </label>
+      <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
           value={selectedCustomer.value.contact}
@@ -243,17 +249,17 @@ export const CustomersCrudComponent =  component$(() => {
               });
               if (!res.ok) {
                 const text = await res.text();
-                throw new Error(`Failed to update product: ${text}`);
+                throw new Error(`Imeshindwa ku-update mteja: ${text}`);
               }
-              const updatedProduct = await res.json();
-              // Update product in the local list
-              const index = products.value.findIndex(p => p.id === updatedProduct.id);
+              const updatedCustomer = await res.json();
+              // Update Customer in the local list
+              const index = customer.value.findIndex(p => p.id === updatedCustomer.id);
               if (index > -1) {
-                products.value[index] = updatedProduct;
+                customer.value[index] = updatedCustomer;
               }
               isEditing.value = false;
             } catch (err) {
-              console.error('Failed to update product:', err);
+              console.error('Imeshindwa ku-update mteja:', err);
             }
           }}
         >
@@ -278,11 +284,11 @@ export const CustomersCrudComponent =  component$(() => {
   <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
       <h2 class="text-lg font-semibold">Confirm Deletion</h2>
-      <p class="mt-2 text-sm">Are you sure you want to delete this product?</p>
+      <p class="mt-2 text-sm">Are you sure you want to delete this customer?</p>
       <div class="mt-4 flex gap-2">
         <button
           class="px-4 py-2 bg-red-500 text-white rounded"
-          onClick$={() => deleteProduct(selectedCustomer.value!.id)}
+          onClick$={() => deleteCustomers(selectedCustomer.value!.id)}
         >
           Delete
         </button>

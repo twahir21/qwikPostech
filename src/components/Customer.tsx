@@ -1,8 +1,9 @@
 import { component$, useStore, $, useComputed$ } from "@builder.io/qwik";
 import { CustomersCrudComponent } from "./CustComp";
 import { fetchWithLang } from "~/routes/function/fetchLang";
+import { Translate } from "./Language";
 
-export const CustomerComponent =  component$(() => {
+export const CustomerComponent =  component$((props:{lang: string}) => {
   const customer = useStore({
     name: "",
     contact: "",
@@ -56,9 +57,9 @@ export const CustomerComponent =  component$(() => {
 
   return (
 <>
-    <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
-        Create Customer :
-    </h1>
+      <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
+        <Translate lang={props.lang} keys={['step_1']} /> 
+      </h1>
     <div class="flex justify-center pt-4">
       <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md border-2 border-gray-600">
         <h2 class="text-lg font-semibold mb-4 text-center">Customer Form</h2>
@@ -94,7 +95,7 @@ export const CustomerComponent =  component$(() => {
       </div>
     </div>
 
-    <CustomersCrudComponent />
+    <CustomersCrudComponent lang={props.lang}/>
 
     {/* Modal Popup */}
     {modal.isOpen && (
