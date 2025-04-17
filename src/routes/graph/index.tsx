@@ -1,14 +1,10 @@
+// src/components/TestChart.tsx
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import Chart from "chart.js/auto";
 
-type NetSalesData = {
-  day: string;
-  netSales: number;
-};
-
-export const Graph = component$((props: {lang: string, data: NetSalesData[] }) => {
+export default component$(() => {
   useVisibleTask$(() => {
-    const canvas = document.getElementById("salesChart") as HTMLCanvasElement | null;
+    const canvas = document.getElementById("testChart") as HTMLCanvasElement | null;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
@@ -19,23 +15,14 @@ export const Graph = component$((props: {lang: string, data: NetSalesData[] }) =
       (canvas as any)._chartInstance.destroy();
     }
 
-    const salesMap = new Map<string, number>();
-    props.data.forEach((entry) => {
-      salesMap.set(entry.day, entry.netSales);
-    });
-
-    const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const data = labels.map((day) => salesMap.get(day) || 0);
-    console.log(data)
-
     const chart = new Chart(ctx, {
       type: "bar",
       data: {
-        labels,
+        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
         datasets: [
           {
-            label: "Mauzo",
-            data,
+            label: "Votes",
+            data: [12, 19, 3, 5, 2, 3],
             backgroundColor: [
               "rgba(255, 99, 132, 0.6)",
               "rgba(54, 162, 235, 0.6)",
@@ -64,13 +51,9 @@ export const Graph = component$((props: {lang: string, data: NetSalesData[] }) =
   });
 
   return (
-    <div class="max-w-3xl mx-auto bg-gray-200 p-8 rounded-lg shadow-lg mb-10 mt-6">
-      <h1 class="text-lg font-bold mb-4">📊 Sales Data</h1>
-      {props.data.length === 0 ? (
-        <p class="text-red-600 font-semibold">No data to display</p>
-      ) : (
-        <canvas id="salesChart" height="150"></canvas>
-      )}
+    <div class="max-w-xl mx-auto mt-10 p-4 bg-white rounded-lg shadow">
+      <h2 class="text-xl font-bold mb-4">📊 Simple Chart Test</h2>
+      <canvas id="testChart" height="200" width="400"></canvas>
     </div>
   );
 });

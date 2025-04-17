@@ -17,11 +17,11 @@ const translations: Record<string, Translation> = {
     top_asked_products: "Top Asked Products",
     total_expired_products: "Total Expired Products",
     saas_subscription: "SaaS Subscription",
-    recently_added_products: "Recently Added Products", // English translation
+    recently_added_products: "Low Stock Products (to be ordered)", 
     product: "Product",
     price: "Price",
     stock: "Stock",
-    graph_title: "Sales Chart in a week", // English translation
+    graph_title: "Sales Chart in a week", 
     step_1: "Step 1 :",
     step_2: "Step 2 :",
     step_3: "Step 3 :",
@@ -46,7 +46,7 @@ const translations: Record<string, Translation> = {
     product: "Produit",
     price: "Prix",
     stock: "Stock",
-    recently_added_products: "Produits Ajoutés Récemment", // French translation
+    recently_added_products: "Produits en rupture de stock (à commander)", // French translation
     graph_title: "Graphique des ventes en une semaine", // French translatio
     step_1: "Étape 1 :",
     step_2: "Étape 2 :",
@@ -72,7 +72,7 @@ const translations: Record<string, Translation> = {
     product: "Bidhaa",
     price: "Bei",
     stock: "Hisa",
-    recently_added_products: "Bidhaa Zilizoongezwa Hivi Karibuni", // Swahili translation
+    recently_added_products: "Bidhaa Zilizopungua (za kuagiza)", // Swahili translation
     graph_title: "Chati ya Mauzo kwa wiki", // Swahili translation
     step_1: "Hatua ya 1 :",
     step_2: "Hatua ya 2 :",
@@ -96,7 +96,7 @@ const translations: Record<string, Translation> = {
     top_asked_products: "أكثر المنتجات طلباً",
     total_expired_products: "المنتجات المنتهية الصلاحية",
     saas_subscription: "اشتراك SaaS",
-    recently_added_products: "المنتجات المضافة مؤخرًا", // Arabic translation
+    recently_added_products: "المنتجات منخفضة المخزون (للطلب)", 
     product: "منتج",
     price: "السعر",
     stock: "المخزون",

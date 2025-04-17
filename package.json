@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
-    "chart.js": "^4.4.8",
+    "chart.js": "^4.4.9",
     "chartjs": "^0.3.24",
     "i18next": "^24.2.3",
     "i18next-fs-backend": "^2.6.0",
