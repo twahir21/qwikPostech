@@ -1,41 +1,32 @@
-import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
+import { component$, useSignal, useTask$, $, useContext } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 import { Translate } from './Language';
+import { RefetchContext } from './context/refreshContext';
 
-interface Product {
+interface Supplier {
   id: string;
-  name: string;
-  categoryId: string;
-  priceSold: number;
-  priceBought: number;
-  stock: number;
-  shopId: string;
-  supplierId: string;
-  minStock: number;
-  status: string;
-  unit: string;
+  company: string;
+  contact: string
   createdAt: string;
-  updatedAt: string;
-  isQRCode: boolean;
 }
 
-export const SuppCrudComponent =  component$((props: {lang: string}) => {
-  const products = useSignal<Product[]>([]);
+export const SuppCrudComponent =  component$((props: {lang: string }) => {
+  const supplier = useSignal<Supplier[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
   const currentPage = useSignal(1);
   const perPage = 10;
   const isLoading = useSignal(false);
-  const selectedProduct = useSignal<Product | null>(null);
+  const selectedSupplier = useSignal<Supplier | null>(null);
   const isEditing = useSignal(false);
   const isDeleting = useSignal(false);
 
 
-  const fetchProducts = $(async () => {
+  const fetchSuppliers = $(async () => {
     isLoading.value = true;
     try {
       const res = await fetchWithLang(
-        `http://localhost:3000/products?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
+        `http://localhost:3000/suppliers?search=${encodeURIComponent(search.value)}&page=${currentPage.value}&limit=${perPage}`,{
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -47,40 +38,44 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
 
       if (!res.ok) {
         const text = await res.text(); // fallback for non-JSON errors
-        throw new Error(`Failed to fetch products: ${text}`);
+        throw new Error(`Imeshindwa kujibu kuhusu wateja: ${text}`);
       }
 
 
       const json = await res.json();
       if (!json.success) {
-        throw new Error(json.message || 'Failed to fetch products');
+        throw new Error(json.message || 'Imeshindwa kuleta supplier kutoka kwenye seva');
       }
-      products.value = json.data;
+      supplier.value = json.data;
 
       total.value = json.total;
     } catch (err) {
-      console.error('Failed to fetch products:', err);
+      console.error('Imeshindwa kuleta supplier:', err);
     } finally {
       isLoading.value = false;
     }
   });
 
+  const { supplierRefetch } = useContext(RefetchContext);
+
   useTask$(({ track }) => {
     track(() => search.value);
     track(() => currentPage.value);
-    fetchProducts();
+    track(() => supplierRefetch.value);
+    fetchSuppliers();
+    supplierRefetch.value = false;
   });
 
   const totalPages = () => Math.ceil(total.value / perPage);
 
-  const editProduct = $((product: Product) => {
-    selectedProduct.value = { ...product }; // Prepopulate the form with product data
+  const editSupplier = $((supplier: Supplier) => {
+    selectedSupplier.value = { ...supplier }; // Prepopulate the form with supplier data
     isEditing.value = true;
   });
   
-  const deleteProduct = $(async (productId: string) => {
+  const deleteSupplier = $(async (supplierId: string) => {
     try {
-      const res = await fetchWithLang(`http://localhost:3000/products/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/suppliers/${supplierId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -90,13 +85,13 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
   
       if (!res.ok) {
         const text = await res.text(); // Fallback for non-JSON errors
-        throw new Error(`Failed to delete product: ${text}`);
+        throw new Error(`Imeshindwa kufuta muuzaji: ${text}`);
       }
   
-      // If deletion is successful, remove the product from the list
-      products.value = products.value.filter(product => product.id !== productId);
+      // If deletion is successful, remove the supplier from the list
+      supplier.value = supplier.value.filter(supplier => supplier.id !== supplierId);
     } catch (err) {
-      console.error('Failed to delete product:', err);
+      console.error('Imeshindwa kufika kwa seva za muuzaji: ', err);
     } finally {
       isDeleting.value = false;
     }
@@ -105,12 +100,13 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
 
   return (
     <div class="p-4 max-w-5xl mx-auto">
-      <h1 class="text-xl font-bold mb-4 text-center"><Translate lang={props.lang} keys={['products']} /></h1>
+
+      <h1 class="text-xl font-bold mb-4 text-center"> <Translate lang={props.lang} keys={['suppliers']} /> </h1>
 
       <input
         class="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         type="text"
-        placeholder="🔍 Tafuta kwa jina la bidhaa ..."
+        placeholder="🔍 Tafuta kwa jina la muuzaji ..."
         bind:value={search}
       />
 
@@ -119,12 +115,8 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['prdName']} /></th>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceSold']} /></th>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceBought']} /></th>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['stock']} /></th>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['unit']} /></th>
-              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['status']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['name']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['contact']} /></th>
               <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['action']} /></th>
             </tr>
           </thead>
@@ -135,46 +127,32 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
                   Loading...
                 </td>
               </tr>
-            ) : products.value.length === 0 ? (
+            ) : supplier.value.length === 0 ? (
               <tr>
                 <td colSpan={7} class="p-4 text-center text-gray-500">
-                Hakuna bidhaa yoyote, isajili kwanza ....
+                Hakuna muuzaji yoyote, msajili kwanza ....
                 </td>
               </tr>
               )
              : (
-              products.value.map((product) => (
-                <tr key={product.id} class="border-b border-gray-200">
-                  <td class="p-3">{product.name}</td>
-                  <td class="p-3"> {product.priceSold} /=</td>
-                  <td class="p-3"> {product.priceBought} /=</td>
-                  <td class="p-3">{product.stock}</td>
-                  <td class="p-3">{product.unit}</td>
-                  <td class="p-3">
-                    <span
-                      class={`px-2 py-1 text-xs rounded-full ${
-                        product.status === 'available'
-                          ? 'bg-green-200 text-green-800'
-                          : 'bg-red-200 text-red-800'
-                      }`}
-                    >
-                      {product.status}
-                    </span>
-                  </td>
-                  <td class="p-3 space-x-2">
-                    <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+              supplier.value.map((supplier) => (
+                <tr key={supplier.id} class="border-b border-gray-200">
+                  <td class="p-3">{supplier.company}</td>
+                  <td class="p-3"> {supplier.contact} </td>
+                  <div class="p-3 space-x-2">
+                    <button class="text-blue-600 hover:underline" onClick$={() => editSupplier(supplier)}>
                         Edit
                     </button>
                     <button
                         class="text-red-600 hover:underline"
                         onClick$={() => {
-                        selectedProduct.value = product;
+                        selectedSupplier.value = supplier;
                         isDeleting.value = true;
                         }}
                     >
                         Delete
                     </button>
-                    </td>
+                    </div>
 
                 </tr>
               ))
@@ -185,32 +163,18 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
 
       {/* Mobile Cards */}
       <div class="sm:hidden space-y-4">
-        {products.value.map((product) => (
-          <div key={product.id} class="border rounded-lg p-3 bg-white shadow-sm">
-            <div class="font-semibold">{product.name}</div>
-            <div class="text-sm">Price Sold: Tsh {product.priceSold}</div>
-            <div class="text-sm">Price Bought: Tsh {product.priceBought}</div>
-            <div class="text-sm">Stock: {product.stock}</div>
-            <div class="text-sm">Unit: {product.unit}</div>
-            <div class="text-sm mt-1">
-              <span
-                class={`inline-block px-2 py-1 text-xs rounded-full ${
-                  product.status === 'available'
-                    ? 'bg-green-200 text-green-800'
-                    : 'bg-red-200 text-red-800'
-                }`}
-              >
-                {product.status}
-              </span>
-            </div>
+        {supplier.value.map((supplier) => (
+          <div key={supplier.id} class="border rounded-lg p-3 bg-white shadow-sm">
+            <div class="font-semibold">{supplier.company}</div>
+            <div class="text-sm"> {supplier.contact}</div>
             <td class="p-3 space-x-2">
-                <button class="text-blue-600 hover:underline" onClick$={() => editProduct(product)}>
+                <button class="text-blue-600 hover:underline" onClick$={() => editSupplier(supplier)}>
                     Edit
                 </button>
                 <button
                     class="text-red-600 hover:underline"
                     onClick$={() => {
-                    selectedProduct.value = product;
+                    selectedSupplier.value = supplier;
                     isDeleting.value = true;
                     }}
                 >
@@ -224,9 +188,11 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
       {/* Pagination */}
       <div class="mt-6 flex justify-between items-center">
         <button
-          onClick$={() => currentPage.value--}
-          disabled={currentPage.value === 1}
-          class="px-4 py-2 bg-gray-200 text-sm rounded disabled:opacity-50"
+        onClick$={() => {
+          if (currentPage.value > 1) currentPage.value--;
+        }}          
+        disabled={currentPage.value === 1}
+        class="px-4 py-2 bg-gray-200 text-sm rounded disabled:opacity-50"
         >
           Previous
         </button>
@@ -242,98 +208,63 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
         </button>
       </div>
 
-      {isEditing.value && selectedProduct.value && (
+      {isEditing.value && selectedSupplier.value && (
   <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-      <h2 class="text-lg font-semibold">Edit Product</h2>
+      <h2 class="text-lg font-semibold">Edit Supplier</h2>
 
       <div class="mt-4">
-        <label class="block text-sm">Name</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['name']} /></label>
         <input
           type="text"
           class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.name}
-          onInput$={(e) => (selectedProduct.value!.name = (e.target as HTMLInputElement).value)}
+          value={selectedSupplier.value.company}
+          onInput$={(e) => (selectedSupplier.value!.company = (e.target as HTMLInputElement).value)}
         />
       </div>
       <div class="mt-4">
-        <label class="block text-sm">PriceSold</label>
-        <input
+      <label class="block text-sm"><Translate lang={props.lang} keys={['contact']} /></label>
+      <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.priceSold}
+          value={selectedSupplier.value.contact}
           onInput$={(e) => {
             const value = (e.target as HTMLInputElement).value;
-            selectedProduct.value!.priceSold = parseFloat(value);
+            selectedSupplier.value!.contact = value;
           }}
 
         />
       </div>
 
-      <div class="mt-4">
-        <label class="block text-sm">PriceBought</label>
-        <input
-            type="number"
-            class="w-full p-2 border border-gray-300 rounded"
-            value={selectedProduct.value.priceBought}
-            onInput$={(e) => {
-              const value = (e.target as HTMLInputElement).value;
-              selectedProduct.value!.priceBought = parseFloat(value);
-            }
-          }
-            
-        />
-
-      </div>
-
-      <div class="mt-4">
-        <label class="block text-sm"><Translate lang={props.lang} keys={['stock']} /></label>
-        <input
-          type="number"
-          class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.stock}
-          onInput$={(e) => {
-            const value = (e.target as HTMLInputElement).value;
-            selectedProduct.value!.stock = parseInt(value, 10); // or parseFloat(value) if it's a decimal number
-          }}       
-        />
-      </div>
-      <div class="mt-4">
-        <label class="block text-sm"><Translate lang={props.lang} keys={['unit']} /></label>
-        <input
-          type="text"
-          class="w-full p-2 border border-gray-300 rounded"
-          value={selectedProduct.value.unit}
-          onInput$={(e) => (selectedProduct.value!.unit = (e.target as HTMLInputElement).value)}
-        />
-      </div>
       <div class="mt-4 flex gap-2">
         <button
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetchWithLang(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
+              const res = await fetchWithLang(`http://localhost:3000/suppliers/${selectedSupplier.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
                   'Accept-Language': 'sw', // Adjust as necessary
                 },
-                body: JSON.stringify(selectedProduct.value),
+                body: JSON.stringify(selectedSupplier.value),
                 credentials: 'include',
               });
+
+              supplierRefetch.value = true;
               if (!res.ok) {
                 const text = await res.text();
-                throw new Error(`Failed to update product: ${text}`);
+                throw new Error(`Imeshindwa ku-update muuzaji: ${text}`);
               }
-              const updatedProduct = await res.json();
-              // Update product in the local list
-              const index = products.value.findIndex(p => p.id === updatedProduct.id);
+              const updatedSupplier = await res.json();
+              // Update Supplier in the local list
+              const index = supplier.value.findIndex(p => p.id === updatedSupplier.id);
               if (index > -1) {
-                products.value[index] = updatedProduct;
+                supplier.value[index] = updatedSupplier;
               }
               isEditing.value = false;
             } catch (err) {
-              console.error('Failed to update product:', err);
+              console.error('Imeshindwa ku-update muuzaji:', err);
             }
           }}
         >
@@ -343,7 +274,7 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
           class="px-4 py-2 bg-gray-300 text-black rounded"
           onClick$={() => {
             isEditing.value = false;
-            selectedProduct.value = null;
+            selectedSupplier.value = null;
           }}
         >
           Cancel
@@ -358,11 +289,11 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
   <div class="fixed inset-0 flex items-center justify-center z-10 bg-gray-600 bg-opacity-50">
     <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
       <h2 class="text-lg font-semibold">Confirm Deletion</h2>
-      <p class="mt-2 text-sm">Are you sure you want to delete this product?</p>
+      <p class="mt-2 text-sm">Are you sure you want to delete this supplier?</p>
       <div class="mt-4 flex gap-2">
         <button
           class="px-4 py-2 bg-red-500 text-white rounded"
-          onClick$={() => deleteProduct(selectedProduct.value!.id)}
+          onClick$={() => deleteSupplier(selectedSupplier.value!.id)}
         >
           Delete
         </button>
@@ -370,7 +301,7 @@ export const SuppCrudComponent =  component$((props: {lang: string}) => {
           class="px-4 py-2 bg-gray-300 text-black rounded"
           onClick$={() => {
             isDeleting.value = false;
-            selectedProduct.value = null;
+            selectedSupplier.value = null;
           }}
         >
           Cancel

@@ -41,7 +41,8 @@ const translations: Record<string, Translation> = {
     priceSold: "Selling price",
     unit: "Unit",
     status: "Status",
-    products: "📦  Products"
+    products: "📦  Products",
+    suppliers: "🚛 Suppliers"
 
   },
   fr: {
@@ -82,7 +83,8 @@ const translations: Record<string, Translation> = {
     priceSold: "Prix de vente",
     unit: "Unité",
     status: "Statut",
-    products: "📦  Produits"
+    products: "📦  Produits",
+    suppliers: "🚛 Fournisseurs"
   },
   sw: {
     total_profit: "Faida jumla",
@@ -122,7 +124,8 @@ const translations: Record<string, Translation> = {
     priceSold: "Bei ya kuuza",
     unit: "Kipimo",
     status: "Hali",
-    products: "📦  Bidhaa"
+    products: "📦  Bidhaa",
+    suppliers: "🚛 Wauzaji"
 
   },
   ar: {
@@ -163,7 +166,8 @@ const translations: Record<string, Translation> = {
     priceSold: "سعر البيع",
     unit: "الوحدة",
     status: "الحالة",
-    products: "📦  المنتجات"
+    products: "📦  المنتجات",
+    suppliers: "🚛 الموردون"
   },
 };
 
