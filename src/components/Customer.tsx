@@ -1,7 +1,8 @@
-import { component$, useStore, $, useComputed$ } from "@builder.io/qwik";
+import { component$, useStore, $, useComputed$, useContext } from "@builder.io/qwik";
 import { CustomersCrudComponent } from "./CustComp";
 import { fetchWithLang } from "~/routes/function/fetchLang";
 import { Translate } from "./Language";
+import { RefetchContext } from "./context/refreshContext";
 
 export const CustomerComponent =  component$((props:{lang: string}) => {
   const customer = useStore({
@@ -26,6 +27,8 @@ export const CustomerComponent =  component$((props:{lang: string}) => {
     );
   });
 
+  const { customerRefetch } = useContext(RefetchContext);
+
   const handleSubmit = $(async () => {
     const name = customer.name.trim().toLowerCase();
     const contact = customer.contact.trim().toLowerCase();
@@ -36,6 +39,7 @@ export const CustomerComponent =  component$((props:{lang: string}) => {
       credentials: "include",
       body: JSON.stringify({ name, contact }),
     });
+    customerRefetch.value = true;
 
     if (!response.ok) {
       const result = await response.json();
@@ -62,10 +66,10 @@ export const CustomerComponent =  component$((props:{lang: string}) => {
       </h1>
     <div class="flex justify-center pt-4">
       <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md border-2 border-gray-600">
-        <h2 class="text-lg font-semibold mb-4 text-center">Customer Form</h2>
+        <h2 class="text-lg font-semibold mb-4 text-center"><Translate lang={props.lang} keys={['customerForm']} /> </h2>
         <form preventdefault:submit onSubmit$={handleSubmit}>
           <div class="mb-4">
-            <label class="block text-gray-800 mb-1">Customer Name</label>
+            <label class="block text-gray-800 mb-1"><Translate lang={props.lang} keys={['customerName']} /></label>
             <input
               type="text"
               class="w-full p-2 border border-gray-300 rounded"
@@ -75,7 +79,7 @@ export const CustomerComponent =  component$((props:{lang: string}) => {
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-800 mb-1">Contact Info</label>
+            <label class="block text-gray-800 mb-1"><Translate lang={props.lang} keys={['contact']} /></label>
             <input
               type="text"
               class="w-full p-2 border border-gray-300 rounded"
@@ -89,7 +93,7 @@ export const CustomerComponent =  component$((props:{lang: string}) => {
             class="w-full bg-gray-700 text-white p-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isFormInvalid.value}
           >
-            Submit
+            <Translate lang={props.lang} keys={['submit']} />
           </button>
         </form>
       </div>

@@ -28,6 +28,15 @@ const translations: Record<string, Translation> = {
     step_4: "Step 4 :",
     addPrd: "Add Product",
     addSupp: "Add Supplier",
+    customerForm: "Customer Form",
+    customerName: "Customer name :",
+    contact: "Contact :",
+    submit: "Submit",
+    customers: "🧑‍💼 Customers",
+    searchCustomerName: "Search customer name ...",
+    name: "Name :",
+    action: "Action :"
+
   },
   fr: {
     total_profit: "Profit total",
@@ -54,6 +63,14 @@ const translations: Record<string, Translation> = {
     step_4: "Étape 4 :",
     addPrd: "Ajouter un produit",
     addSupp: "Ajouter un fournisseur",
+    customerForm: "Formulaire client",
+    customerName: "Nom du client :",
+    contact: "Contact :",
+    submit: "Soumettre",
+    customers: "🧑‍💼 Clients",
+    searchCustomerName: "Rechercher le nom du client ...",
+    name: "Nom :",
+    action: "Action :"
   },
   sw: {
     total_profit: "Faida jumla",
@@ -80,6 +97,14 @@ const translations: Record<string, Translation> = {
     step_4: "Hatua ya 4 :",
     addPrd: "Ongeza Bidhaa", // Swahili translation
     addSupp: "Ongeza Muuzaji", // Swahili translation
+    customerForm : "Fomu ya mteja",
+    customerName: "Jina la mteja :",
+    contact: "Mawasiliano :",
+    submit: "Tuma",
+    customers: "🧑‍💼 Wateja",
+    searchCustomerName: "Tafuta jina la mteja ...",
+    name: "Jina :",
+    action: "Kitendo :"
 
   },
   ar: {
@@ -107,6 +132,14 @@ const translations: Record<string, Translation> = {
     step_4: ": الخطوة 4",
     addPrd: "إضافة منتج", // Arabic translation
     addSupp: "إضافة مورد", // Arabic translation
+    customerForm: "نموذج العميل",
+    customerName: ": اسم العميل",
+    contact: ": جهة الاتصال",
+    submit: "إرسال",
+    customers: "🧑‍💼 العملاء",
+    searchCustomerName: "... ابحث عن اسم العميل",
+    name: ": الاسم",
+    action: ": الإجراء"
   },
 };
 

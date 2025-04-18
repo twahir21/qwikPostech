@@ -1,6 +1,7 @@
-import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
+import { component$, useSignal, useTask$, $, useContext } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
 import { Translate } from './Language';
+import { RefetchContext } from './context/refreshContext';
 
 interface Customer {
   id: string;
@@ -55,10 +56,14 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
     }
   });
 
+  const { customerRefetch } = useContext(RefetchContext);
+
   useTask$(({ track }) => {
     track(() => search.value);
     track(() => currentPage.value);
+    track(() => customerRefetch.value);
     fetchCustomers();
+    customerRefetch.value = false;
   });
 
   const totalPages = () => Math.ceil(total.value / perPage);
@@ -98,12 +103,12 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
       <h1 class="text-xl font-bold text-gray-700 mt-6 mb-2 border-b-2 pb-2">
         <Translate lang={props.lang} keys={['step_2']} /> 
       </h1>
-      <h1 class="text-xl font-bold mb-4 text-center">🧑‍💼 Customers</h1>
+      <h1 class="text-xl font-bold mb-4 text-center"> <Translate lang={props.lang} keys={['customers']} /> </h1>
 
       <input
         class="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         type="text"
-        placeholder="Search Customer name..."
+        placeholder="🔍 Tafuta kwa jina la mteja ..."
         bind:value={search}
       />
 
@@ -112,9 +117,9 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
-              <th class="p-3 border-b border-gray-200">Name</th>
-              <th class="p-3 border-b border-gray-200">Contact</th>
-              <th class="p-3 border-b border-gray-200">Actions</th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['name']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['contact']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['action']} /></th>
             </tr>
           </thead>
           <tbody>
@@ -163,7 +168,7 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
         {customer.value.map((customer) => (
           <div key={customer.id} class="border rounded-lg p-3 bg-white shadow-sm">
             <div class="font-semibold">{customer.name}</div>
-            <div class="text-sm">Price Sold: Tsh {customer.contact}</div>
+            <div class="text-sm"> {customer.contact}</div>
             <td class="p-3 space-x-2">
                 <button class="text-blue-600 hover:underline" onClick$={() => editCustomer(customer)}>
                     Edit
@@ -211,7 +216,7 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
       <h2 class="text-lg font-semibold">Edit Customers</h2>
 
       <div class="mt-4">
-        <label class="block text-sm">Name</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['name']} /></label>
         <input
           type="text"
           class="w-full p-2 border border-gray-300 rounded"
@@ -220,7 +225,7 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
         />
       </div>
       <div class="mt-4">
-      <label class="block text-sm">Mawasiliano: </label>
+      <label class="block text-sm"><Translate lang={props.lang} keys={['contact']} /></label>
       <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
@@ -247,6 +252,8 @@ export const CustomersCrudComponent =  component$((props: {lang: string }) => {
                 body: JSON.stringify(selectedCustomer.value),
                 credentials: 'include',
               });
+
+              customerRefetch.value = true;
               if (!res.ok) {
                 const text = await res.text();
                 throw new Error(`Imeshindwa ku-update mteja: ${text}`);
