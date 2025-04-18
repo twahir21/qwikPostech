@@ -1,12 +1,13 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
+import { Translate } from './Language';
 
 interface Product {
   id: string;
   name: string;
   categoryId: string;
-  priceSold: string;
-  priceBought: string;
+  priceSold: number;
+  priceBought: number;
   stock: number;
   shopId: string;
   supplierId: string;
@@ -18,7 +19,7 @@ interface Product {
   isQRCode: boolean;
 }
 
-export const SuppCrudComponent =  component$(() => {
+export const SuppCrudComponent =  component$((props: {lang: string}) => {
   const products = useSignal<Product[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
@@ -79,7 +80,7 @@ export const SuppCrudComponent =  component$(() => {
   
   const deleteProduct = $(async (productId: string) => {
     try {
-      const res = await fetchWithLang(`http://localhost:3000/productsg/${productId}`, {
+      const res = await fetchWithLang(`http://localhost:3000/products/${productId}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {
@@ -104,12 +105,12 @@ export const SuppCrudComponent =  component$(() => {
 
   return (
     <div class="p-4 max-w-5xl mx-auto">
-      <h1 class="text-xl font-bold mb-4 text-center">📦 Products</h1>
+      <h1 class="text-xl font-bold mb-4 text-center"><Translate lang={props.lang} keys={['products']} /></h1>
 
       <input
         class="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         type="text"
-        placeholder="Search product name..."
+        placeholder="🔍 Tafuta kwa jina la bidhaa ..."
         bind:value={search}
       />
 
@@ -118,13 +119,13 @@ export const SuppCrudComponent =  component$(() => {
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
-              <th class="p-3 border-b border-gray-200">Name</th>
-              <th class="p-3 border-b border-gray-200">Price Sold</th>
-              <th class="p-3 border-b border-gray-200">Price Bought</th>
-              <th class="p-3 border-b border-gray-200">Stock</th>
-              <th class="p-3 border-b border-gray-200">Unit</th>
-              <th class="p-3 border-b border-gray-200">Status</th>
-              <th class="p-3 border-b border-gray-200">Actions</th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['prdName']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceSold']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceBought']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['stock']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['unit']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['status']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['action']} /></th>
             </tr>
           </thead>
           <tbody>
@@ -134,7 +135,14 @@ export const SuppCrudComponent =  component$(() => {
                   Loading...
                 </td>
               </tr>
-            ) : (
+            ) : products.value.length === 0 ? (
+              <tr>
+                <td colSpan={7} class="p-4 text-center text-gray-500">
+                Hakuna bidhaa yoyote, isajili kwanza ....
+                </td>
+              </tr>
+              )
+             : (
               products.value.map((product) => (
                 <tr key={product.id} class="border-b border-gray-200">
                   <td class="p-3">{product.name}</td>
@@ -251,26 +259,35 @@ export const SuppCrudComponent =  component$(() => {
       <div class="mt-4">
         <label class="block text-sm">PriceSold</label>
         <input
-          type="text"
+          type="number"
           class="w-full p-2 border border-gray-300 rounded"
           value={selectedProduct.value.priceSold}
-          onInput$={(e) => (selectedProduct.value!.priceSold = (e.target as HTMLInputElement).value )}
+          onInput$={(e) => {
+            const value = (e.target as HTMLInputElement).value;
+            selectedProduct.value!.priceSold = parseFloat(value);
+          }}
+
         />
       </div>
 
       <div class="mt-4">
         <label class="block text-sm">PriceBought</label>
         <input
-            type="text"
+            type="number"
             class="w-full p-2 border border-gray-300 rounded"
             value={selectedProduct.value.priceBought}
-            onInput$={(e) => (selectedProduct.value!.priceBought = (e.target as HTMLInputElement).value )}
+            onInput$={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              selectedProduct.value!.priceBought = parseFloat(value);
+            }
+          }
+            
         />
 
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm">Stock</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['stock']} /></label>
         <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
@@ -282,7 +299,7 @@ export const SuppCrudComponent =  component$(() => {
         />
       </div>
       <div class="mt-4">
-        <label class="block text-sm">Unit</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['unit']} /></label>
         <input
           type="text"
           class="w-full p-2 border border-gray-300 rounded"
@@ -295,12 +312,14 @@ export const SuppCrudComponent =  component$(() => {
           class="px-4 py-2 bg-gray-700 text-white rounded"
           onClick$={async () => {
             try {
-              const res = await fetchWithLang(`http://localhost:3000/productsg/${selectedProduct.value!.id}`, {
+              const res = await fetchWithLang(`http://localhost:3000/products/${selectedProduct.value!.id}`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
+                  'Accept-Language': 'sw', // Adjust as necessary
                 },
                 body: JSON.stringify(selectedProduct.value),
+                credentials: 'include',
               });
               if (!res.ok) {
                 const text = await res.text();

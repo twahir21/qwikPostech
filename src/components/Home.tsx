@@ -27,7 +27,6 @@ export const HomeComponent = component$((props: { lang: string }) => {
   });
   const netSalesStore = useStore<{ day: string; netSales: number }[]>([]);
 
-
   useVisibleTask$(async() => {
     const res = await fetchWithLang("http://localhost:3000/analytics", {
       credentials: 'include'
@@ -37,6 +36,7 @@ export const HomeComponent = component$((props: { lang: string }) => {
       console.error("Analytics failed to fetch");
       return;
     }
+
     const data = await res.json();// Helper function for safe money formatting
     const formatMoney = (amount: number | undefined) =>
       typeof amount === 'number' ? new Intl.NumberFormat().format(amount) : '0';
@@ -108,6 +108,8 @@ export const HomeComponent = component$((props: { lang: string }) => {
     });
 
     netSalesStore.push(...netSales);
+
+
 
   });
   return (

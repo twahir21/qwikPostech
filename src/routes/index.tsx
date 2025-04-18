@@ -5,7 +5,8 @@ import { HomeComponent } from "~/components/Home";
 import { ProductComponent } from "~/components/Products";
 import { CustomerComponent } from "~/components/Customer";
 import { CrudPrdComponent } from "~/components/PrdComponent";
-import { SuppCrudComponent } from "~/components/Supp";
+import { UsageComponent } from "~/components/Usage";
+// import { SuppCrudComponent } from "~/components/Supp";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -22,7 +23,8 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Customers List",
     suppliers: "Suppliers Directory",
     settings: "Settings",
-    start: "Get Started"
+    start: "Get Started",
+    guide: "Guide"
   },
   ar: {
     welcome: "أهلاً، {username}",
@@ -37,7 +39,9 @@ const translations: Record<string, Record<string, string>> = {
     customers: "قائمة العملاء",
     suppliers: "دليل الموردين",
     settings: "الإعدادات",
-    start: "ابدأ" 
+    start: "ابدأ" ,
+    guide: "دليل"
+
   },
   sw: {
     welcome: "Karibu, {username}",
@@ -52,7 +56,9 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Orodha ya Wateja",
     suppliers: "Orodha ya Wauzaji",
     settings: "Mipangilio",
-    start: "Anza hapa"
+    start: "Anza hapa",
+    guide: "Mwongozo"
+
   },
   fr: {
     welcome: "Bienvenue, {username}",
@@ -67,7 +73,9 @@ const translations: Record<string, Record<string, string>> = {
     customers: "Liste des Clients",
     suppliers: "Répertoire des Fournisseurs",
     settings: "Paramètres",
-    start: "Commencer ici"
+    start: "Commencer ici",
+    guide: "Guide"
+
   },
 };
 
@@ -187,17 +195,18 @@ export default component$(() => {
         <nav class="mt-5">
           {[
             { name: "home", emoji: "🏠" },
-            {name: "start", emoji: "🚀"},
+            { name: "guide", emoji: "📖" },
+            { name: "start", emoji: "🚀" },
             { name: "sales", emoji: "💰" },
             { name: "analytics", emoji: "📊" },
-            { name: "receipts", emoji: "🧾" },
+            // { name: "receipts", emoji: "🧾" },
             { name: "debt", emoji: "💳" },
             { name: "expenses", emoji: "💸" },
             { name: "graph", emoji: "📉" },
             { name: "products", emoji: "📦" },
             { name: "customers", emoji: "👥" },
-            { name: "suppliers", emoji: "🔗" },
-            { name: "settings", emoji: "⚙️" },
+            // { name: "suppliers", emoji: "🔗" },
+            // { name: "settings", emoji: "⚙️" },
           ].map(({ name, emoji }) => (
             <button
               key={name}
@@ -279,7 +288,7 @@ export default component$(() => {
             </div>
             <button title="Logout" onClick$={logout}> ⏻ </button>
 
-            <button title="profile"> 👤 </button>
+            {/* <button title="profile"> 👤 </button> */}
           </div>
         </header>
 
@@ -288,6 +297,7 @@ export default component$(() => {
           <h1 class="text-xl font-bold pb-2">{translate("welcome")}</h1>
 
           {store.currentPage === "home" && <HomeComponent lang={store.selectedLanguage} />}
+          {store.currentPage === "guide" && <UsageComponent />}
           {store.currentPage === "start" &&  <ProductComponent lang={store.selectedLanguage} />}
           {store.currentPage === "sales" && <p>💰 {translate("sales")} Page</p>}
           {store.currentPage === "analytics" && <p>📊 {translate("analytics")} Page</p>}
@@ -297,8 +307,8 @@ export default component$(() => {
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
           {store.currentPage === "products" && <CrudPrdComponent lang={store.selectedLanguage}/> }
           {store.currentPage === "customers" && <CustomerComponent lang={store.selectedLanguage}/>}
-          {store.currentPage === "suppliers" && <SuppCrudComponent />}
-          {store.currentPage === "settings" && <p>{translate("settings")} page</p>}
+          {/* {store.currentPage === "suppliers" && <SuppCrudComponent lang={store.selectedLanguage}/>} */}
+          {/* {store.currentPage === "settings" && <p>{translate("settings")} page</p>} */}
         </main>
       </div>
     </div>

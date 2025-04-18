@@ -1,12 +1,20 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import Chart from "chart.js/auto";
+import { fetchWithLang } from "~/routes/function/fetchLang";
 
 type NetSalesData = {
   day: string;
   netSales: number;
 };
 
+
 export const Graph = component$((props: {lang: string, data: NetSalesData[] }) => {
+  useVisibleTask$(async () => {
+    await fetchWithLang("http://localhost:3000/analytics", {
+      credentials: 'include'
+    });
+  });
+
   useVisibleTask$(() => {
     const canvas = document.getElementById("salesChart") as HTMLCanvasElement | null;
     if (!canvas) return;
@@ -26,7 +34,6 @@ export const Graph = component$((props: {lang: string, data: NetSalesData[] }) =
 
     const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const data = labels.map((day) => salesMap.get(day) || 0);
-    console.log(data)
 
     const chart = new Chart(ctx, {
       type: "bar",
@@ -61,7 +68,9 @@ export const Graph = component$((props: {lang: string, data: NetSalesData[] }) =
     });
 
     (canvas as any)._chartInstance = chart;
+
   });
+
 
   return (
     <div class="max-w-3xl mx-auto bg-gray-200 p-8 rounded-lg shadow-lg mb-10 mt-6">
