@@ -4,9 +4,10 @@ export const UsageComponent = component$(() => {
   return (
     <div class="p-4 md:p-8 max-w-4xl mx-auto">
       {/* Kichwa cha Mfumo */}
-      <h1 class="text-4xl font-bold text-center mb-6 animate-bounce text-primary">
+      <h1 class="text-xl sm:text-2xl md:text-4xl font-bold text-center mb-6 animate-bounce text-primary">
         🧾 POSTECH - Mfumo wa Kisasa wa Biashara
       </h1>
+
 
       {/* Maelezo ya Awali */}
       <p class="text-lg text-gray-700 leading-relaxed mb-4 animate-fade-in">

@@ -6,7 +6,12 @@ import { ProductComponent } from "~/components/Products";
 import { CustomerComponent } from "~/components/Customer";
 import { CrudPrdComponent } from "~/components/PrdComponent";
 import { UsageComponent } from "~/components/Usage";
-// import { SuppCrudComponent } from "~/components/Supp";
+import { SalesComponent } from "~/components/Sales";
+import { AnalyticsComponent } from "~/components/Analytics";
+import { DebtComponent } from "~/components/Debts";
+import { ExpensesComponent } from "~/components/Expenses";
+import { SuppCrudComponent } from "~/components/Supp";
+import { SettingsComponent } from "~/components/Settings";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -199,14 +204,14 @@ export default component$(() => {
             { name: "start", emoji: "🚀" },
             { name: "sales", emoji: "💰" },
             { name: "analytics", emoji: "📊" },
-            // { name: "receipts", emoji: "🧾" },
+            { name: "receipts", emoji: "🧾" },
             { name: "debt", emoji: "💳" },
             { name: "expenses", emoji: "💸" },
             { name: "graph", emoji: "📉" },
             { name: "products", emoji: "📦" },
             { name: "customers", emoji: "👥" },
-            // { name: "suppliers", emoji: "🔗" },
-            // { name: "settings", emoji: "⚙️" },
+            { name: "suppliers", emoji: "🔗" },
+            { name: "settings", emoji: "⚙️" },
           ].map(({ name, emoji }) => (
             <button
               key={name}
@@ -299,16 +304,16 @@ export default component$(() => {
           {store.currentPage === "home" && <HomeComponent lang={store.selectedLanguage} />}
           {store.currentPage === "guide" && <UsageComponent />}
           {store.currentPage === "start" &&  <ProductComponent lang={store.selectedLanguage} />}
-          {store.currentPage === "sales" && <p>💰 {translate("sales")} Page</p>}
-          {store.currentPage === "analytics" && <p>📊 {translate("analytics")} Page</p>}
+          {store.currentPage === "sales" && <SalesComponent />}
+          {store.currentPage === "analytics" && <AnalyticsComponent />}
           {store.currentPage === "receipts" && <p>🧾 {translate("receipts")} Page</p>}
-          {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
-          {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
+          {store.currentPage === "debt" && <DebtComponent />}
+          {store.currentPage === "expenses" && <ExpensesComponent />}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
           {store.currentPage === "products" && <CrudPrdComponent lang={store.selectedLanguage}/> }
           {store.currentPage === "customers" && <CustomerComponent lang={store.selectedLanguage}/>}
-          {/* {store.currentPage === "suppliers" && <SuppCrudComponent lang={store.selectedLanguage}/>} */}
-          {/* {store.currentPage === "settings" && <p>{translate("settings")} page</p>} */}
+          {store.currentPage === "suppliers" && <SuppCrudComponent lang={store.selectedLanguage}/>} 
+          {store.currentPage === "settings" && <SettingsComponent />}
         </main>
       </div>
     </div>
