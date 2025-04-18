@@ -295,7 +295,7 @@ export default component$(() => {
           {store.currentPage === "debt" && <p>💳 {translate("debt")}</p>}
           {store.currentPage === "expenses" && <p>💸 {translate("expenses")} Overview</p>}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
-          {store.currentPage === "products" && <CrudPrdComponent /> }
+          {store.currentPage === "products" && <CrudPrdComponent lang={store.selectedLanguage}/> }
           {store.currentPage === "customers" && <CustomerComponent lang={store.selectedLanguage}/>}
           {store.currentPage === "suppliers" && <SuppCrudComponent />}
           {store.currentPage === "settings" && <p>{translate("settings")} page</p>}

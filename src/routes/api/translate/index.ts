@@ -35,7 +35,13 @@ const translations: Record<string, Translation> = {
     customers: "🧑‍💼 Customers",
     searchCustomerName: "Search customer name ...",
     name: "Name :",
-    action: "Action :"
+    action: "Action :",
+    prdName: "Product name",
+    priceBought: "Buying price",
+    priceSold: "Selling price",
+    unit: "Unit",
+    status: "Status",
+    products: "📦  Products"
 
   },
   fr: {
@@ -70,7 +76,13 @@ const translations: Record<string, Translation> = {
     customers: "🧑‍💼 Clients",
     searchCustomerName: "Rechercher le nom du client ...",
     name: "Nom :",
-    action: "Action :"
+    action: "Action :",
+    prdName: "Nom du produit",
+    priceBought: "Prix d'achat",
+    priceSold: "Prix de vente",
+    unit: "Unité",
+    status: "Statut",
+    products: "📦  Produits"
   },
   sw: {
     total_profit: "Faida jumla",
@@ -104,7 +116,13 @@ const translations: Record<string, Translation> = {
     customers: "🧑‍💼 Wateja",
     searchCustomerName: "Tafuta jina la mteja ...",
     name: "Jina :",
-    action: "Kitendo :"
+    action: "Kitendo :",
+    prdName: "Jina la bidhaa",
+    priceBought: "Bei ya kununua",
+    priceSold: "Bei ya kuuza",
+    unit: "Kipimo",
+    status: "Hali",
+    products: "📦  Bidhaa"
 
   },
   ar: {
@@ -139,7 +157,13 @@ const translations: Record<string, Translation> = {
     customers: "🧑‍💼 العملاء",
     searchCustomerName: "... ابحث عن اسم العميل",
     name: ": الاسم",
-    action: ": الإجراء"
+    action: ": الإجراء",
+    prdName: "اسم المنتج",
+    priceBought: "سعر الشراء",
+    priceSold: "سعر البيع",
+    unit: "الوحدة",
+    status: "الحالة",
+    products: "📦  المنتجات"
   },
 };
 

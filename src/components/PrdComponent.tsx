@@ -1,5 +1,6 @@
 import { component$, useSignal, useTask$, $ } from '@builder.io/qwik';
 import { fetchWithLang } from '~/routes/function/fetchLang';
+import { Translate } from './Language';
 
 interface Product {
   id: string;
@@ -18,7 +19,7 @@ interface Product {
   isQRCode: boolean;
 }
 
-export const CrudPrdComponent =  component$(() => {
+export const CrudPrdComponent =  component$((props: {lang: string}) => {
   const products = useSignal<Product[]>([]);
   const total = useSignal(0);
   const search = useSignal('');
@@ -104,12 +105,12 @@ export const CrudPrdComponent =  component$(() => {
 
   return (
     <div class="p-4 max-w-5xl mx-auto">
-      <h1 class="text-xl font-bold mb-4 text-center">📦 Products</h1>
+      <h1 class="text-xl font-bold mb-4 text-center"><Translate lang={props.lang} keys={['products']} /></h1>
 
       <input
         class="w-full mb-4 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
         type="text"
-        placeholder="Search product name..."
+        placeholder="🔍 Tafuta kwa jina la bidhaa ..."
         bind:value={search}
       />
 
@@ -118,13 +119,13 @@ export const CrudPrdComponent =  component$(() => {
         <table class="w-full text-sm text-left">
           <thead class="bg-gray-100 font-semibold text-gray-600">
             <tr>
-              <th class="p-3 border-b border-gray-200">Name</th>
-              <th class="p-3 border-b border-gray-200">Price Sold</th>
-              <th class="p-3 border-b border-gray-200">Price Bought</th>
-              <th class="p-3 border-b border-gray-200">Stock</th>
-              <th class="p-3 border-b border-gray-200">Unit</th>
-              <th class="p-3 border-b border-gray-200">Status</th>
-              <th class="p-3 border-b border-gray-200">Actions</th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['prdName']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceSold']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['priceBought']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['stock']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['unit']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['status']} /></th>
+              <th class="p-3 border-b border-gray-200"><Translate lang={props.lang} keys={['action']} /></th>
             </tr>
           </thead>
           <tbody>
@@ -286,7 +287,7 @@ export const CrudPrdComponent =  component$(() => {
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm">Stock</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['stock']} /></label>
         <input
           type="number"
           class="w-full p-2 border border-gray-300 rounded"
@@ -298,7 +299,7 @@ export const CrudPrdComponent =  component$(() => {
         />
       </div>
       <div class="mt-4">
-        <label class="block text-sm">Unit</label>
+        <label class="block text-sm"><Translate lang={props.lang} keys={['unit']} /></label>
         <input
           type="text"
           class="w-full p-2 border border-gray-300 rounded"
