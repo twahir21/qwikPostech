@@ -58,7 +58,7 @@ export const SalesComponent = component$(() => {
     <>
     <div class="p-4">
         <h1 class="text-2xl md:text-3xl font-bold text-center mb-6 text-primary text-gray-800">
-        🧾 Mauzo Yaliyofanyika
+        💰 Mauzo Yaliyofanyika
         </h1>
 
       {/* Filters */}
@@ -114,7 +114,13 @@ export const SalesComponent = component$(() => {
                 <td class="p-2">{format(new Date(sale.date), 'dd MMM yyyy')}</td>
                 <td class="p-2">{sale.products.map((p) => `${p.name} x${p.qty}`).join(', ')}</td>
                 <td class="p-2">{Intl.NumberFormat().format(sale.total)}</td>
-                <td class="p-2">{sale.paymentType}</td>
+                <td
+                class={`p-2 font-semibold ${
+                    sale.paymentType === 'Cash' ? 'text-green-600' : 'text-yellow-600'
+                }`}
+                >
+                {sale.paymentType}
+                </td>
                 <td class="p-2">{sale.customer}</td>
               </tr>
             ))}
@@ -125,7 +131,6 @@ export const SalesComponent = component$(() => {
       {/* Footer Buttons */}
       <div class="flex justify-between items-center mt-4">
         <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-900">Export CSV</button>
-        <button class="bg-blue-200 text-gray-700 px-4 py-2 rounded hover:text-gray-900 border-1 border-gray-500">Generate Receipts</button>
       </div>
     </div>
     </>

@@ -11,7 +11,7 @@ export default component$(() => {
   const done = useSignal(false)
 
   return (
-    <div class="flex justify-center items-center min-h-screen bg-gray-100 animate-fade-in">
+    <div class="flex justify-center items-center min-h-screen bg-gradient-to-br from-sky-100 to-blue-50 animate-fade-in">
       <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
         <h2 class="text-lg font-semibold mb-3">🔁 Weka Nenosiri Jipya</h2>
         <form preventdefault:submit onSubmit$={async () => {

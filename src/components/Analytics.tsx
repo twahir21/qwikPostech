@@ -22,25 +22,6 @@ export const AnalyticsComponent = component$(() => {
 
   return (
 <div class="p-4 space-y-4">
-{/* Summary Cards */}
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-  <div class="bg-green-100 text-green-800 p-4 rounded shadow text-center">
-    <p class="text-sm">Total Sales</p>
-    <p class="text-xl font-bold">TSh {analytics.totalSales.toLocaleString()}</p>
-  </div>
-  <div class="bg-blue-100 text-blue-800 p-4 rounded shadow text-center">
-    <p class="text-sm">Profit</p>
-    <p class="text-xl font-bold">TSh {analytics.totalProfit.toLocaleString()}</p>
-  </div>
-  <div class="bg-red-100 text-red-800 p-4 rounded shadow text-center">
-    <p class="text-sm">Expenses</p>
-    <p class="text-xl font-bold">TSh {analytics.totalExpenses.toLocaleString()}</p>
-  </div>
-  <div class="bg-purple-100 text-purple-800 p-4 rounded shadow text-center">
-    <p class="text-sm">Net Profit</p>
-    <p class="text-xl font-bold">TSh {analytics.netProfit.toLocaleString()}</p>
-  </div>
-</div>
 
 {/* Most Sold Products */}
 <div class="bg-white border rounded shadow p-4">

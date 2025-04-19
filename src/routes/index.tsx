@@ -12,6 +12,7 @@ import { DebtComponent } from "~/components/Debts";
 import { ExpensesComponent } from "~/components/Expenses";
 import { SuppCrudComponent } from "~/components/Supp";
 import { SettingsComponent } from "~/components/Settings";
+import { ReceiptComponent } from "~/components/Receipts";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -306,7 +307,7 @@ export default component$(() => {
           {store.currentPage === "start" &&  <ProductComponent lang={store.selectedLanguage} />}
           {store.currentPage === "sales" && <SalesComponent />}
           {store.currentPage === "analytics" && <AnalyticsComponent />}
-          {store.currentPage === "receipts" && <p>🧾 {translate("receipts")} Page</p>}
+          {store.currentPage === "receipts" && <ReceiptComponent />}
           {store.currentPage === "debt" && <DebtComponent />}
           {store.currentPage === "expenses" && <ExpensesComponent />}
           {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}

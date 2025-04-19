@@ -12,7 +12,7 @@ export default component$(() => {
       {/* Plan Selection */}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Plan Card 1 (Basic Plan) */}
-        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center hover:scale-105 ransition-all duration-300">
           <h2 class="text-xl font-semibold text-gray-600">Mpango wa Msingi</h2>
           <p class="mt-2 text-gray-500">Kwa wajasiriamali wadogo au biashara ndogo.</p>
           <p class="mt-4 text-2xl font-bold text-gray-700">Tsh 10,000 / mwezi</p>
@@ -47,15 +47,19 @@ export default component$(() => {
 
       {/* Info Section */}
       <div class="mt-8 text-center text-gray-700">
-        <p class="text-lg font-medium">Unahitaji msaada au maelezo zaidi? Wasiliana na timu yetu ya msaada!</p>
-        <button class="mt-4 py-2 px-6 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
-          Wasiliana na Msaada
-        </button>
+        <p class="text-lg font-medium pb-4.5">Unahitaji msaada au maelezo zaidi? Wasiliana na timu yetu ya msaada!</p>
+        <a
+          href="https://wa.me/255674291587"
+          target="_blank"
+          class="block w-full text-center bg-gray-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition"
+        >
+          📲 Nicheki WhatsApp
+        </a>
       </div>
 
       {/* Payment Info */}
       <div class="mt-8 text-center text-gray-700">
-        <p class="text-lg">Lipa kwa namba binafsi ya Halotel: <strong>+255 123 456 789</strong></p>
+        <p class="text-lg">Lipa kwa namba binafsi ya Halotel: <strong>+255 621 031 195</strong></p>
         <p class="mt-2 text-gray-500">Jina la mpokeaji: TWAHIR SOUD ABDI</p>
       </div>
     </div>
