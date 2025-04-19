@@ -1,20 +1,18 @@
 // src/components/SalesPieChart.tsx
-import { component$, useStore, useVisibleTask$, noSerialize } from '@builder.io/qwik';
-import Chart from 'chart.js/auto';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { component$, useVisibleTask$ } from "@builder.io/qwik";
+import Chart from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 type SalesTypeData = {
   type: 'Cash' | 'Debt';
   amount: number;
 };
 
-export default component$(() => {
+export const CashDebt = component$(() => {
   const dummyData: SalesTypeData[] = [
     { type: 'Cash', amount: 850 },
     { type: 'Debt', amount: 250 },
   ];
-
-  const state = useStore<{ chart: Chart | null }>({ chart: null });
 
   useVisibleTask$(() => {
     const canvas = document.getElementById('salesPieChart') as HTMLCanvasElement | null;
@@ -23,8 +21,10 @@ export default component$(() => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Destroy old chart
-    state.chart?.destroy();
+    // Destroy old chart if exists
+    if ((canvas as any)._chartInstance) {
+      (canvas as any)._chartInstance.destroy();
+    }
 
     const total = dummyData.reduce((sum, item) => sum + item.amount, 0);
     const labels = dummyData.map((item) => item.type);
@@ -67,7 +67,7 @@ export default component$(() => {
       plugins: [ChartDataLabels],
     });
 
-    state.chart = noSerialize(chart);
+    (canvas as any)._chartInstance = chart;
   });
 
   return (

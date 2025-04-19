@@ -1,6 +1,6 @@
 import { component$ } from '@builder.io/qwik';
 
-export const AnalyticsComponent = component$(() => {
+export const OthersComponent = component$(() => {
 
 
     // Dummy analytics data

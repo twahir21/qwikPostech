@@ -1,14 +1,74 @@
 // src/components/SettingsPage.tsx
-import { component$, useSignal } from '@builder.io/qwik';
+import { component$, useSignal, useStore, useResource$, $ } from '@builder.io/qwik';
+import { fetchWithLang } from '~/routes/function/fetchLang';
 
 export const SettingsComponent = component$(() => {
-  const shopName = useSignal('MyPOS Tech');
-  const email = useSignal('admin@example.com');
   const currentPassword = useSignal('');
   const newPassword = useSignal('');
   const confirmPassword = useSignal('');
   const isTrial = true;
   const trialEnds = '2025-04-30';
+
+  interface Store {
+    shopName?: string;
+    email?: string;
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+    isTrial?: boolean;
+    trialEnds?: string; // You could use `Date` if you want stricter typing
+  }
+
+  const store = useStore<Store>({
+    shopName: 'MyPOS Tech',
+    email: 'admin@example.com',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    isTrial: true,
+    trialEnds: '2025-04-30', // Consider using a Date object if needed
+  });
+
+  useResource$(async () => {
+    const response = await fetchWithLang("http://localhost:3000/shop", {
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      console.error("Imeshindwa kupokea ujumbe unaotakiwa");
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.log(data.message || "Kuna tatizo");
+    }
+
+    store.email = data.email.email;
+    store.shopName = data.shopName.shopName;
+
+  });
+
+  const handleSubmit = $(async () => {
+
+    const payload = {
+      email: store.email,
+      shopName: store.shopName
+    }
+
+
+    const req = await fetchWithLang("http://localhost:3000/shop", {
+      credentials: 'include',
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!req.ok) {
+      console.error("Imeshindwa kutuma ombi lako kwa seva");    }
+  });
 
   return (
     <div class="p-4 max-w-3xl mx-auto">
@@ -22,17 +82,18 @@ export const SettingsComponent = component$(() => {
             type="text"
             class="w-full p-2 border rounded"
             placeholder="Shop Name"
-            value={shopName.value}
-            onInput$={(e) => (shopName.value = (e.target as HTMLInputElement).value)}
+            value={store.shopName}
+            onInput$={(e) => (store.shopName = (e.target as HTMLInputElement).value)}
           />
           <input
             type="email"
             class="w-full p-2 border rounded"
             placeholder="Admin Email"
-            value={email.value}
-            onInput$={(e) => (email.value = (e.target as HTMLInputElement).value)}
+            value={store.email}
+            onInput$={(e) => (store.email = (e.target as HTMLInputElement).value)}
           />
-          <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          onClick$={handleSubmit}>
             💾 Save Changes
           </button>
         </div>

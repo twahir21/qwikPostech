@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "build": "qwik build",
+    "vercel-build": "vite build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.types": "tsc --incremental --noEmit",
@@ -42,6 +43,7 @@
     "chart.js": "^4.4.9",
     "chartjs": "^0.3.24",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "date-fns": "^4.1.0",
     "i18next": "^24.2.3",
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-backend": "^3.0.2",

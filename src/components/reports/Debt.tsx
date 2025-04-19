@@ -2,7 +2,7 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import Chart from "chart.js/auto";
 
-export default component$(() => {
+export const DebtComponentGraph =  component$(() => {
   useVisibleTask$(() => {
     const canvas = document.getElementById("debtsChart") as HTMLCanvasElement | null;
     if (!canvas) return;

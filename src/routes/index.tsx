@@ -1,18 +1,18 @@
 import { component$, useStore, $, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate, type DocumentHead } from "@builder.io/qwik-city";
-import logo from "/newLogo.png";
 import { HomeComponent } from "~/components/Home";
 import { ProductComponent } from "~/components/Products";
 import { CustomerComponent } from "~/components/Customer";
 import { CrudPrdComponent } from "~/components/PrdComponent";
 import { UsageComponent } from "~/components/Usage";
 import { SalesComponent } from "~/components/Sales";
-import { AnalyticsComponent } from "~/components/Analytics";
 import { DebtComponent } from "~/components/Debts";
 import { ExpensesComponent } from "~/components/Expenses";
 import { SuppCrudComponent } from "~/components/Supp";
 import { SettingsComponent } from "~/components/Settings";
 import { ReceiptComponent } from "~/components/Receipts";
+import { MainGraph } from "~/components/reports/MainGraph";
+import { OthersComponent } from "~/components/Others";
 
 // Example translations (you can fetch these from an API or external file)
 const translations: Record<string, Record<string, string>> = {
@@ -20,7 +20,7 @@ const translations: Record<string, Record<string, string>> = {
     welcome: "Welcome, {username}",
     home: "Home",
     sales: "Sales",
-    analytics: "Analytics",
+    others: "Others",
     receipts: "Receipts",
     debt: "Debt Management",
     expenses: "Expenses Overview",
@@ -36,7 +36,7 @@ const translations: Record<string, Record<string, string>> = {
     welcome: "أهلاً، {username}",
     home: "الصفحة الرئيسية",
     sales: "المبيعات",
-    analytics: "التحليلات",
+    others: "أخرى",
     receipts: "الإيصالات",
     debt: "إدارة الديون",
     expenses: "نظرة عامة على المصاريف",
@@ -53,7 +53,7 @@ const translations: Record<string, Record<string, string>> = {
     welcome: "Karibu, {username}",
     home: "Nyumbani",
     sales: "Mauzo",
-    analytics: "Takwimu",
+    others: "Mengineyo",
     receipts: "Risiti",
     debt: "Usimamizi wa Madeni",
     expenses: "Muhtasari wa Gharama",
@@ -70,7 +70,7 @@ const translations: Record<string, Record<string, string>> = {
     welcome: "Bienvenue, {username}",
     home: "Accueil",
     sales: "Ventes",
-    analytics: "Analytique",
+    others: "Autres",
     receipts: "Reçus",
     debt: "Gestion de la Dette",
     expenses: "Aperçu des Dépenses",
@@ -189,7 +189,7 @@ export default component$(() => {
         </button>
         <span class="inline-flex items-center pl-1">
           <img 
-            src={logo} 
+            src="/newLogo.png" 
             alt="Profile" 
             class="w-10 h-10 rounded-full border-2 border-blue-600 ml-2" 
             width="70" 
@@ -204,7 +204,7 @@ export default component$(() => {
             { name: "guide", emoji: "📖" },
             { name: "start", emoji: "🚀" },
             { name: "sales", emoji: "💰" },
-            { name: "analytics", emoji: "📊" },
+            { name: "others", emoji: "🧿" },
             { name: "receipts", emoji: "🧾" },
             { name: "debt", emoji: "💳" },
             { name: "expenses", emoji: "💸" },
@@ -306,11 +306,11 @@ export default component$(() => {
           {store.currentPage === "guide" && <UsageComponent />}
           {store.currentPage === "start" &&  <ProductComponent lang={store.selectedLanguage} />}
           {store.currentPage === "sales" && <SalesComponent />}
-          {store.currentPage === "analytics" && <AnalyticsComponent />}
+          {store.currentPage === "others" && <OthersComponent />}
           {store.currentPage === "receipts" && <ReceiptComponent />}
           {store.currentPage === "debt" && <DebtComponent />}
           {store.currentPage === "expenses" && <ExpensesComponent />}
-          {store.currentPage === "graph" && <p>📉 {translate("graph")} Reports</p>}
+          {store.currentPage === "graph" && <MainGraph />}
           {store.currentPage === "products" && <CrudPrdComponent lang={store.selectedLanguage}/> }
           {store.currentPage === "customers" && <CustomerComponent lang={store.selectedLanguage}/>}
           {store.currentPage === "suppliers" && <SuppCrudComponent lang={store.selectedLanguage}/>} 
@@ -337,6 +337,8 @@ export const head: DocumentHead = {
     { property: "og:image", content: "https://mypostech.store/assets/images/pos-dashboard-thumbnail.jpg" },
     { property: "og:url", content: "https://mypostech.store/dashboard" },
     { property: "og:type", content: "website" },
+    { property: "og:site_name", content: "Postech POS" },
+
 
     // Twitter Card meta tags
     { name: "twitter:card", content: "summary_large_image" },
